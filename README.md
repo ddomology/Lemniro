@@ -73,6 +73,7 @@ The `postbuild` step also works around [Next.js's Windows static-export segment 
 - A static React site with individual article URLs and discovery metadata.
 - CI checks on pull requests and automatic GitHub Pages deployment from `main`.
 - Optional YouTube video metadata for attaching a published lecture to its article.
+- A [visual asset library](https://ddomology.github.io/Lemniro/assets/) with subject tags, SVG badges, course covers, and a downloadable pack. See [asset authoring](docs/design-assets.md).
 
 No YouTube channel or videos are invented by the scaffold. Video production and Chalkspace integration are future work. The website can publish written material independently.
 

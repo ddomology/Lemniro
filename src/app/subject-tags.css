@@ -1,0 +1,30 @@
+.subject-tag {
+  --tag-ink: #57614e;
+  --tag-paper: #eeeee6;
+  --tag-line: #d0d4c4;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 9px 4px 6px;
+  border: 1px solid var(--tag-line);
+  border-radius: 4px;
+  background: var(--tag-paper);
+  color: var(--tag-ink);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: .15px;
+  text-transform: none;
+}
+.subject-tag > svg { flex: none; }
+.subject-tag-compact { border: 0; background: none; padding: 0; }
+.article-meta > .subject-tag { font-size: 10px; }
+.entry-card-meta:has(.subject-tag) { align-items: center; }
+.topic-filters button .subject-tag { font-size: inherit; }
+@media (max-width: 580px) {
+  .subject-tag { font-size: 9px; }
+  .subject-tag > svg { width: 20px; height: 20px; }
+}

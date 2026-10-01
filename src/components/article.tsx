@@ -3,6 +3,7 @@ import type { Entry } from '@/lib/content';
 import { entryPath, getAllEntries } from '@/lib/content';
 import { absolute, asset, site } from '@/lib/site';
 import { Arrow } from './brand';
+import { SubjectTag } from './subject-tag';
 
 function formattedDate(date: string) {
   return new Intl.DateTimeFormat('en', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${date.slice(0, 10)}T12:00:00Z`));
@@ -16,8 +17,8 @@ export function Article({ entry }: { entry: Entry }) {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structured).replace(/</g, '\\u003c') }} />
     <div className="shell article-shell">
-      <div className="article-breadcrumb"><Link href={notes ? '/notes/' : '/journal/'}>{notes ? 'Notes' : 'Journal'}</Link><span aria-hidden="true">/</span><span>{entry.topic}</span></div>
-      <header className="article-header"><div className="eyebrow">{entry.series || (notes ? 'Lecture notes' : 'The journal')}</div><h1>{entry.title}</h1><p className="article-deck">{entry.description}</p><div className="article-meta"><span>{entry.topic}</span><span>{entry.readingMinutes} min read</span><time dateTime={entry.date}>{formattedDate(entry.date)}</time></div></header>
+      <div className="article-breadcrumb"><Link href={notes ? '/notes/' : '/journal/'}>{notes ? 'Notes' : 'Journal'}</Link><span aria-hidden="true">/</span><SubjectTag topic={entry.topic} /></div>
+      <header className="article-header"><div className="eyebrow">{entry.series || (notes ? 'Lecture notes' : 'The journal')}</div><h1>{entry.title}</h1><p className="article-deck">{entry.description}</p><div className="article-meta"><SubjectTag topic={entry.topic} /><span>{entry.readingMinutes} min read</span><time dateTime={entry.date}>{formattedDate(entry.date)}</time></div></header>
       <div className="article-layout">
         <aside className="article-sidebar" aria-label="Article navigation">
           {entry.outline.length > 0 && <nav className="table-of-contents" aria-label="On this page"><h2>On this page</h2><ol>{entry.outline.map(item => <li key={item.id} className={item.level > 2 ? 'toc-subsection' : undefined}><a href={`#${item.id}`}>{item.title}</a></li>)}</ol></nav>}
@@ -31,7 +32,7 @@ export function Article({ entry }: { entry: Entry }) {
           <div className="article-colophon"><span className="colophon-square" aria-hidden="true">∎</span><p>Found something worth revisiting?<br />The <a href={asset(entry.pdfPath)}>PDF</a> is yours to keep, and the <a href={asset(entry.sourcePath)}>source</a> is open to explore.</p><a href={`${site.repository}/issues`}>Suggest a correction <Arrow diagonal /></a></div>
         </article>
       </div>
-      {related.length > 0 && <section className="related-section"><div className="section-heading"><div><div className="eyebrow">Keep the thread</div><h2>Read next</h2></div></div><div className="related-grid">{related.map(item => <Link key={item.slug} href={entryPath(item)}><span className="entry-card-meta">{item.topic}</span><h3>{item.title}</h3><Arrow /></Link>)}</div></section>}
+      {related.length > 0 && <section className="related-section"><div className="section-heading"><div><div className="eyebrow">Keep the thread</div><h2>Read next</h2></div></div><div className="related-grid">{related.map(item => <Link key={item.slug} href={entryPath(item)}><SubjectTag topic={item.topic} /><h3>{item.title}</h3><Arrow /></Link>)}</div></section>}
     </div>
   </>;
 }

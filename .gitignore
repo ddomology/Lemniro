@@ -5,6 +5,8 @@ out/
 *.tsbuildinfo
 generated/
 public/tex/
+public/assets/math/
+public/assets/lemniro-math-assets.zip
 .cache/
 .build/
 work/
