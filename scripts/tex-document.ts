@@ -117,4 +117,3 @@ export function extractDocument(source: string, css: string, slug: string, artif
   const usedVisuals = new Set($('[data-tex-visual]').map((_index, element) => $(element).attr('data-tex-visual')).get());
   return { title, html: $('body').html()!.trim(), css: scopeCss(css, slug), outline, visuals: visuals.filter(visual => usedVisuals.has(visual.id)) };
 }
-
