@@ -1,0 +1,110 @@
+% lemniro: {"kind":"note","description":"A rendering reference for mathematical lecture notes: structured text, AMS mathematics, references, tables, and TikZ.","topic":"Topology","date":"2026-10-01","readingMinutes":5,"prerequisites":[],"related":[]}
+\documentclass[11pt]{article}
+\input{tex/lemniro-preamble}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\newtheorem{claim}[theorem]{Claim}
+\newcommand{\inv}[1]{#1\sp{-1}}
+\title{Continuity: a complete lecture-note example}
+\begin{document}
+\maketitle
+
+\section{Definitions and statements}
+This document is ordinary LaTeX. Its paragraphs, statements, lists, and
+references become HTML; a TikZ figure is compiled to vector graphics.
+Text remains selectable and wraps to the width of the reader's screen.
+
+\begin{definition}[Continuity]\label{def:continuous}
+Let $X$ and $Y$ be topological spaces. A map $f:X\to Y$ is continuous if
+$\inv{f}(V)$ is open in $X$ for every open subset $V\subseteq Y$.
+\end{definition}
+
+\begin{lemma}\label{lem:inverse}
+For any function $f:X\to Y$ and any family $(V_\alpha)_{\alpha\in A}$,
+\begin{equation}\label{eq:inverse}
+  \inv{f}\!\left(\bigcup_{\alpha\in A}V_\alpha\right)
+  =\bigcup_{\alpha\in A}\inv{f}(V_\alpha).
+\end{equation}
+\end{lemma}
+\begin{proof}
+A point $x$ lies in the left-hand side of~\eqref{eq:inverse} exactly when
+$f(x)\in V_\alpha$ for some $\alpha\in A$. This holds exactly when
+$x\in\inv{f}(V_\alpha)$ for some $\alpha\in A$, which means that $x$
+lies in the right-hand side.
+\end{proof}
+
+\begin{theorem}\label{thm:composition}
+The composition of two continuous maps is continuous.
+\end{theorem}
+\begin{proof}
+Let $f:X\to Y$ and $g:Y\to Z$ be continuous, and let $W\subseteq Z$
+be open. Then $\inv{g}(W)$ is open in $Y$ and
+$\inv{f}(\inv{g}(W))$ is open in $X$. Since
+\[
+  \inv{(g\circ f)}(W)=\inv{f}\bigl(\inv{g}(W)\bigr),
+\]
+Definition~\ref{def:continuous} applies to $g\circ f$.
+\end{proof}
+\begin{corollary}
+Every finite composition of continuous maps is continuous.
+\end{corollary}
+\begin{remark}
+Theorem~\ref{thm:composition} does not require metrics on the spaces.
+\end{remark}
+\begin{claim}
+The identity map of any topological space is continuous.
+\end{claim}
+\begin{example}
+For a discrete domain, every function is continuous. For an indiscrete
+codomain, every function is continuous as well.
+\end{example}
+\begin{exercise}
+Use Definition~\ref{def:continuous} to prove the preceding example.
+\end{exercise}
+
+\section{A TikZ diagram}
+The diagram in Figure~\ref{fig:composition} records the same composition.
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[>=Stealth, every node/.style={font=\large}]
+  \node (X) at (0,0) {$X$};
+  \node (Y) at (3,0) {$Y$};
+  \node (Z) at (6,0) {$Z$};
+  \draw[->,thick] (X) -- node[above] {$f$} (Y);
+  \draw[->,thick] (Y) -- node[above] {$g$} (Z);
+  \draw[->,thick] (X) to[bend right=30] node[below] {$g\circ f$} (Z);
+\end{tikzpicture}
+\caption{Continuous maps and their composition.}\label{fig:composition}
+\end{figure}
+
+\section{Mathematical typography}
+The following identities exercise fractions, limits, roots, matrices,
+cases, calligraphic letters, and blackboard bold alphabets.
+\begin{align}
+  \sum_{k=0}^{\infty}r^k &= \frac{1}{1-r}, && |r|<1,\label{eq:geometric}\\
+  \int_0^1 x^2\,dx &= \frac13.\nonumber
+\end{align}
+\[
+  A=\begin{pmatrix}1&2\\0&1\end{pmatrix},\qquad
+  |x|=\begin{cases}x,&x\geq0,\\-x,&x<0,\end{cases}
+  \qquad \sqrt{1+x^2}.
+\]
+In topology, $\T\subseteq\powerset{X}$, $\closure{U}\subseteq X$,
+and $\Int(U)\subseteq U$. In algebra, $\mathbb{Q}\subseteq\R\subseteq\mathbb{C}$.
+Equation~\eqref{eq:geometric} is a geometric-series identity.
+
+\subsection{Lists, tables, and a footnote}
+\begin{enumerate}
+\item Start with a definition.
+\item Prove a statement.
+  \begin{itemize}\item Explain where each hypothesis is used.\end{itemize}
+\item Work through an example.\footnote{Examples help distinguish a definition from its consequences.}
+\end{enumerate}
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Construction} & \textbf{Open sets}\\
+Discrete topology & Every subset\\
+Indiscrete topology & $\varnothing$ and $X$
+\end{tabular}
+\end{center}
+\end{document}

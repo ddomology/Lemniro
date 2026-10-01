@@ -1,0 +1,37 @@
+[
+  {
+    "source": "fonts/opentype/public/lm/lmroman10-regular.otf",
+    "output": "lmroman10-regular.woff2",
+    "sourceSha256": "1aa18cfefa58132c52ce5de70db1fd1154201c19cd2b2cdaffba4906a33e6852",
+    "glyphs": 821,
+    "bytes": 48128
+  },
+  {
+    "source": "fonts/opentype/public/lm/lmroman10-italic.otf",
+    "output": "lmroman10-italic.woff2",
+    "sourceSha256": "c1fce25075567bb8dbf2151658c3b442690041db17a2d49fc9e55905ea5b7169",
+    "glyphs": 821,
+    "bytes": 50440
+  },
+  {
+    "source": "fonts/opentype/public/lm/lmroman10-bold.otf",
+    "output": "lmroman10-bold.woff2",
+    "sourceSha256": "102fe06c430a8b681b2bf6876b7cd967ae4d47b4b6b41d915eb7913b726d9fb1",
+    "glyphs": 821,
+    "bytes": 47252
+  },
+  {
+    "source": "fonts/opentype/public/lm/lmroman10-bolditalic.otf",
+    "output": "lmroman10-bolditalic.woff2",
+    "sourceSha256": "c37a28eed7a6e03f792b98b5e5f637b2fcda378bb4855f99284f1a88fe35f124",
+    "glyphs": 821,
+    "bytes": 50108
+  },
+  {
+    "source": "fonts/opentype/public/lm-math/latinmodern-math.otf",
+    "output": "latinmodern-math.woff2",
+    "sourceSha256": "6075562b771f8b82f0c179e363389684f2dd09de30038269e2628e504bd7be0f",
+    "glyphs": 4802,
+    "bytes": 391508
+  }
+]

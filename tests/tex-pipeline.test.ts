@@ -35,6 +35,7 @@ test('compiled references and unsafe embeds fail before publication', () => {
   assert.throws(() => assertResolvedLog('LaTeX Warning: Label `one` multiply defined.', 'test'), /multiply defined/);
   assert.throws(() => extractDocument('<html><head><title>Title</title></head><body><a href="#missing">1</a></body></html>', '', 'note'), /broken compiled reference/);
   assert.throws(() => extractDocument('<html><head><title>Title</title></head><body><script>alert(1)</script></body></html>', '', 'note'), /executable embeds/);
+  assert.throws(() => extractDocument('<html><head><title>Title</title></head><body><math><mfrac><mrow>1</mrow><mrow>x</mrow></mfrac></math></body></html>', '', 'note'), /malformed MathML/);
 });
 
 test('compiled HTML is extracted semantically and also permits sectionless prose', () => {
@@ -112,7 +113,33 @@ test('an actual LaTeX reference failure blocks HTML publication', () => {
   const isolated = mkdtempSync(path.join(root, '.build', 'missing-ref-test-'));
   mkdirSync(path.join(isolated, 'content', 'notes'), { recursive: true });
   mkdirSync(path.join(isolated, 'tex'));
-  cpSync(path.join(root, 'tex', 'lemniro-preamble.tex'), path.join(isolated, 'tex', 'lemniro-preamble.tex'));
+  cpSync(path.join(root, 'tex'), path.join(isolated, 'tex'), { recursive: true });
   writeFileSync(path.join(isolated, 'content', 'notes', 'broken.tex'), `${header(metadata)}\\documentclass{article}\n\\input{tex/lemniro-preamble}\n\\title{Broken reference}\n\\begin{document}\n\\maketitle\nSee Theorem~\\ref{does-not-exist}.\n\\end{document}\n`);
   assert.throws(() => compileEntry(isolated, path.join('content', 'notes', 'broken.tex')), /undefined|failed|missing/);
+});
+
+test('a complete lecture compiles semantic HTML, custom statements, AMS math, and TikZ', () => {
+  mkdirSync(path.join(root, '.build'), { recursive: true });
+  const isolated = mkdtempSync(path.join(root, '.build', 'lecture-render-test-'));
+  mkdirSync(path.join(isolated, 'content', 'notes'), { recursive: true });
+  cpSync(path.join(root, 'tex'), path.join(isolated, 'tex'), { recursive: true });
+  cpSync(path.join(root, 'examples', 'lecture-note.tex'), path.join(isolated, 'content', 'notes', 'lecture-note.tex'));
+  const entry = compileEntry(isolated, path.join('content', 'notes', 'lecture-note.tex'));
+  const $ = cheerio.load(entry.html);
+  assert.ok($('p').length > 10, 'prose is HTML text');
+  assert.ok($('ol li').length >= 3 && $('ul li').length >= 1, 'lists retain structure');
+  assert.ok($('table').length >= 1, 'tables retain structure');
+  assert.equal($('[data-environment="claim"]').length, 1, 'custom theorem names survive');
+  assert.equal($('[data-environment="theorem"]').length, 1);
+  assert.equal($('.proof').length, 2);
+  assert.ok($('math mfrac').length > 0 && $('math mtable').length > 0, 'fractions and matrices retain math structure');
+  assert.ok($('[data-environment="definition"] msup').length > 0, 'the inverse-image macro keeps its superscript');
+  assert.ok($('math msqrt mn').text().includes('1'), 'math tokens survive the preceding TikZ image');
+  const figure = $('.figure img[src$=".svg"]');
+  assert.equal(figure.length, 1, 'TikZ is a single vector diagram, not a screenshot of the document');
+  const filename = path.basename(figure.attr('src')!);
+  const svg = readFileSync(path.join(isolated, '.build', 'tex-publish', entry.slug, filename), 'utf8');
+  assert.match(svg, /<svg\b/);
+  assert.match(svg, /<(?:path|use)\b/);
+  assert.ok($('.caption').text().includes('Continuous maps'));
 });

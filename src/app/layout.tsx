@@ -5,6 +5,7 @@ import { asset, site } from '@/lib/site';
 import './globals.css';
 import './math-blocks.css';
 import './subject-tags.css';
+import './tex-typography.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(`${site.url}/`),

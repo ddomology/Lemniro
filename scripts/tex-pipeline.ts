@@ -105,6 +105,15 @@ export function extractDocument(source: string, css: string, slug: string): Pick
       if (/^on/i.test(attribute) || /^(?:href|src)$/i.test(attribute) && /^\s*javascript:/i.test(value)) throw new Error(`${slug}: executable HTML is not supported in compiled notes.`);
     }
   });
+  // MathML Core does not paint bare text inside layout nodes such as mrow.
+  // Catch converter regressions (notably math after TikZ on older TeX4ht)
+  // before publishing formulas with silently missing symbols.
+  $('math, math *').each((_index, element) => {
+    if (/^(mi|mn|mo|mtext|ms|annotation|annotation-xml)$/.test(element.tagName)
+      || $(element).parents('annotation, annotation-xml').length) return;
+    const invalid = $(element).contents().toArray().find(node => node.type === 'text' && node.data.trim());
+    if (invalid?.type === 'text') throw new Error(`${slug}: malformed MathML: bare text '${invalid.data.trim().slice(0, 60)}' inside <${element.tagName}>. Inspect the TeX4ht configuration; publishing was stopped.`);
+  });
   const outline: OutlineItem[] = [];
   $('.sectionHead, .likesectionHead, .subsectionHead, .likesubsectionHead, .subsubsectionHead, .likesubsubsectionHead').each((index, element) => {
     const heading = $(element);
@@ -120,7 +129,7 @@ export function extractDocument(source: string, css: string, slug: string): Pick
   });
   $('.newtheorem').each((_index, element) => {
     const name = $(element).find('.head').first().text().trim().match(/^(Definition|Theorem|Proposition|Lemma|Corollary|Example|Exercise|Remark)\b/i)?.[1];
-    if (name) $(element).attr('data-environment', name.toLowerCase());
+    if (!$(element).attr('data-environment')) $(element).attr('data-environment', name?.toLowerCase() || 'statement');
   });
   $('body [href], body [src], body [data]').each((_index, element) => {
     for (const attribute of ['href', 'src', 'data']) {
@@ -142,6 +151,9 @@ export function extractDocument(source: string, css: string, slug: string): Pick
   });
   $('p').each((_index, element) => {
     if (!$(element).text().trim() && !$(element).find('math,img,svg,a[id]').length) $(element).remove();
+  });
+  $('table.equation, table.equation-star, table.align, table.align-star').each((_index, element) => {
+    if (!$(element).parents('.tex-display-scroll').length) $(element).wrap('<div class="tex-display-scroll" tabindex="0" role="group" aria-label="Equation; scroll horizontally if needed"></div>');
   });
   return { title, html: $('body').html()!.trim(), css: scopeCss(css, slug), outline };
 }
@@ -173,7 +185,7 @@ export function compileEntry(root: string, relativeSource: string): Entry {
   for (const directory of ['tex', 'content']) cpSync(path.join(root, directory), path.join(work, directory), { recursive: true });
   for (const directory of ['html', 'pdf']) mkdirSync(path.join(work, directory));
   const texOptions = '-no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error';
-  run(process.env.MAKE4HT_BIN || 'make4ht', ['-a', 'warning', '-f', 'html5', '-d', 'html', relativeSource.replaceAll(path.sep, '/'), 'mathml', '', '', texOptions], work, 'make4ht-command.log');
+  run(process.env.MAKE4HT_BIN || 'make4ht', ['-a', 'warning', '-f', 'html5', '-c', 'tex/lemniro-html.cfg', '-d', 'html', relativeSource.replaceAll(path.sep, '/'), 'mathml,svg', '', '', texOptions], work, 'make4ht-command.log');
   assertResolvedLog(readFileSync(path.join(work, `${slug}.log`), 'utf8'), `${relativeSource} (HTML)`);
   const pdfArgs = ['-no-shell-escape', '-interaction=nonstopmode', '-halt-on-error', '-file-line-error', '-output-directory=pdf', relativeSource.replaceAll(path.sep, '/')];
   for (let pass = 1; pass <= 2; pass++) run(process.env.PDFLATEX_BIN || 'pdflatex', pdfArgs, work, `pdflatex-pass-${pass}.log`);

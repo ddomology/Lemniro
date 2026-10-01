@@ -43,9 +43,11 @@ jobs:
             texlive-extra-utils \
             texlive-plain-generic \
             texlive-fonts-recommended \
+            texlive-pictures dvisvgm \
             lmodern
           make4ht --version
           pdflatex --version
+          dvisvgm --version
 
       - name: Install JavaScript dependencies
         run: npm ci

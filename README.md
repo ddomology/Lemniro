@@ -14,7 +14,7 @@ content/notes/*.tex or content/journal/*.tex
                            |
                  make4ht + pdfLaTeX
                            |
-               HTML with MathML + PDF
+          HTML + MathML + TikZ SVGs + PDF
                            |
                   React / Next.js
                            |
@@ -43,12 +43,12 @@ Ubuntu 24.04 uses the same packages as CI:
 sudo apt-get update
 sudo apt-get install --no-install-recommends -y \
   texlive-latex-extra texlive-extra-utils texlive-plain-generic \
-  texlive-fonts-recommended lmodern
+  texlive-fonts-recommended texlive-pictures dvisvgm lmodern
 npm ci
 npm run dev
 ```
 
-On Windows or macOS, install the equivalent TeX Live packages and ensure `make4ht` and `pdflatex` are on `PATH`. Run all project commands from the repository root.
+On Windows or macOS, install the equivalent TeX Live packages and ensure `make4ht`, `pdflatex`, and `dvisvgm` are on `PATH`. Run all project commands from the repository root.
 
 ```sh
 npm run content  # compile TeX into HTML, PDF, and generated/content.json
@@ -68,7 +68,8 @@ The `postbuild` step also works around [Next.js's Windows static-export segment 
 ## What this foundation includes
 
 - Notes and journal articles generated from real LaTeX compilation.
-- HTML text and MathML formulas, plus a PDF from the same source.
+- Selectable HTML text, structured MathML formulas, and TikZ SVG figures, plus a PDF from the same source.
+- Self-hosted Latin Modern text and math fonts, matching the PDF's font family.
 - A shared lecture-note preamble for definitions, theorems, proofs, examples, exercises, and references.
 - A static React site with individual article URLs and discovery metadata.
 - CI checks on pull requests and automatic GitHub Pages deployment from `main`.
