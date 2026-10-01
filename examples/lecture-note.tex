@@ -2,10 +2,11 @@
 \documentclass[11pt]{article}
 \input{tex/lemniro-preamble}
 \usepackage{tikz}
+\usepackage{mathtools,cancel}
 \usetikzlibrary{arrows.meta,positioning}
 \newtheorem{claim}[theorem]{Claim}
-\newcommand{\inv}[1]{#1\sp{-1}}
-\title{Continuity: a complete lecture-note example}
+\newcommand{\inv}[1]{#1^{-1}}
+\title{Continuity of $f$: a complete lecture-note example}
 \begin{document}
 \maketitle
 
@@ -92,6 +93,27 @@ cases, calligraphic letters, and blackboard bold alphabets.
 In topology, $\T\subseteq\powerset{X}$, $\closure{U}\subseteq X$,
 and $\Int(U)\subseteq U$. In algebra, $\mathbb{Q}\subseteq\R\subseteq\mathbb{C}$.
 Equation~\eqref{eq:geometric} is a geometric-series identity.
+
+\begin{example}[Macro equivalence]
+The macro $\inv{f}$ and the literal expression $f^{-1}$ have identical
+typography. Inline descenders $g_j$, fractions $\frac{a}{b}$, and script
+letters $\mathcal{T}$ share the surrounding text's baseline.
+\end{example}
+\[
+  X\xrightarrow{\text{continuous}}Y,
+  \qquad \cancel{x}+x,
+  \qquad \underbrace{x+\cdots+x}_{n\text{ terms}}.
+\]
+\begin{gather}
+  \inv{f}(\varnothing)=\varnothing,\label{eq:empty}\\
+  \inv{f}(Y)=X.\label{eq:whole}
+\end{gather}
+\begin{multline}\label{eq:long}
+  \inv{f}(V_1\cup V_2\cup V_3\cup V_4)\\
+  =\inv{f}(V_1)\cup\inv{f}(V_2)\cup\inv{f}(V_3)\cup\inv{f}(V_4).
+\end{multline}
+Equations~\eqref{eq:empty}, \eqref{eq:whole}, and~\eqref{eq:long}
+retain their numbers and references.
 
 \subsection{Lists, tables, and a footnote}
 \begin{enumerate}

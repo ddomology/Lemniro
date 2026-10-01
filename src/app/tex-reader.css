@@ -1,0 +1,309 @@
+/*
+ * Reader presentation only. The compiler owns document structure, numbering,
+ * TeX dimensions and SVG paths; this file owns the surrounding reading rhythm.
+ * Load after the font definitions and the site's general styles.
+ */
+
+.article-body .tex-content {
+  --reader-ink: #252a25;
+  --reader-muted: #6e776b;
+  --reader-rule: #d5dbce;
+  --reader-accent: #365842;
+  --tex-base-size: 20px;
+  font-family: 'Lemniro Roman', 'Latin Modern Roman', serif;
+  font-size: var(--tex-base-size);
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.68;
+  color: var(--reader-ink);
+  max-width: 72ch;
+  overflow-wrap: break-word;
+  text-align: start;
+}
+
+.article-header h1 {
+  font-family: 'Lemniro Roman', 'Latin Modern Roman', serif;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+
+/* Browser paragraphs reflow; TeX's italic and bold runs remain intact. */
+.article-body .tex-content p {
+  margin: 0 0 1em;
+  text-indent: 0;
+}
+
+.article-body .tex-content :is(strong, b) { font-weight: 700; }
+.article-body .tex-content :is(em, i) { font-style: italic; }
+
+.article-body .tex-content :is(h2, h3, h4, h5) {
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0;
+  color: #263f2f;
+  margin: 2em 0 .8em;
+  text-wrap: balance;
+  scroll-margin-top: 2em;
+}
+
+.article-body .tex-content h2 { font-size: 1.45em; }
+.article-body .tex-content h3 { font-size: 1.2em; }
+.article-body .tex-content :is(h4, h5) { font-size: 1.06em; }
+.article-body .tex-content > :first-child { margin-top: 0; }
+
+.article-body .tex-content :is(.sectionHead, .subsectionHead, .subsubsectionHead) .titlemark {
+  color: #7c8a73;
+  font-weight: 400;
+  padding-right: .4em;
+}
+
+.article-body .tex-content a {
+  color: var(--reader-accent);
+  text-decoration-thickness: 1px;
+  text-decoration-color: #b0beaa;
+  text-underline-offset: .16em;
+}
+
+.article-body .tex-content a:hover { text-decoration-color: currentColor; }
+.article-body .tex-content a[id] { scroll-margin-top: 3em; }
+.article-body .tex-content :is(ul, ol) { margin: .8em 0 1.2em; padding-left: 1.5em; }
+.article-body .tex-content li { margin-block: .35em; padding-left: .12em; }
+.article-body .tex-content li > p:last-child { margin-bottom: 0; }
+.article-body .tex-content blockquote {
+  margin: 1.5em 0;
+  padding: .2em 0 .2em 1.2em;
+  border-left: 2px solid #9aa68c;
+  color: #637057;
+}
+.article-body .tex-content img { display: block; max-width: 100%; height: auto; margin-inline: auto; }
+.article-body .tex-content table { border-collapse: collapse; max-width: 100%; margin: 1.3em auto; }
+.article-body .tex-content :is(td, th) { padding: .3em .6em; }
+.article-body .tex-content pre { overflow: auto; padding: 1em; background: #eeeee6; font-size: .75em; border: 1px solid var(--reader-rule); }
+.article-body .tex-content hr { border: 0; border-top: 1px solid var(--reader-rule); margin: 2em 0; }
+.article-body .tex-content .footnote-mark { font-size: .75em; }
+
+/* Statement families share a quiet frame; color is a secondary distinction. */
+.article-body .tex-content div.newtheorem[data-environment] {
+  --block-paper: #f0f3ec;
+  --block-line: #c9d4c2;
+  --block-ink: #36533c;
+  border: 1px solid var(--block-line);
+  border-radius: 3px;
+  background: var(--block-paper);
+  padding: .95em 1.15em 1em;
+  margin: 1.35em 0;
+  min-width: 0;
+  max-width: 100%;
+  line-height: inherit;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='definition'] {
+  --block-paper: #f0f4f1;
+  --block-line: #cbd8d0;
+  --block-ink: #335b50;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='remark'] {
+  --block-paper: #f5f2ec;
+  --block-line: #ddd5c7;
+  --block-ink: #725d46;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='example'] {
+  --block-paper: #f5f4ed;
+  --block-line: #dad7c6;
+  --block-ink: #68603f;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='exercise'] {
+  --block-paper: #f3f4ee;
+  --block-line: #d2d8c8;
+  --block-ink: #546044;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > p:first-of-type > .head {
+  display: block;
+  color: var(--block-ink);
+  font-size: 1em;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1.4;
+  border: 0;
+  padding: 0;
+  margin: 0 0 .38em;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > p:first-of-type > .head span {
+  font-style: normal;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > :last-child,
+.article-body .tex-content .proof > :last-child {
+  margin-bottom: 0;
+}
+
+/* Proofs read as continuous prose, with the source's Proof. label and QED. */
+.article-body .tex-content .proof {
+  padding: 0;
+  border: 0;
+  margin: 1.25em 0 1.65em;
+}
+
+.article-body .tex-content .proof > p:first-of-type > .head {
+  margin-right: .2em;
+  color: #334b39;
+}
+
+/* Inline graphics keep their TeX width, height and depth. Never shrink them
+ * with the site's general responsive-image rule: that changes the baseline. */
+.article-body .tex-content .tex-math {
+  display: inline-block;
+  line-height: 0;
+  font-style: normal;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  max-width: none;
+  text-indent: 0;
+  font-size: calc(var(--tex-base-size) * var(--tex-font-ratio, 1));
+  overflow: visible;
+}
+
+.article-body .tex-content :is(h1,h2,h3,h4,h5,.head,.caption,.footnotes) .tex-math { font-size: 1em; }
+.tex-visual-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.article-body .tex-content .tex-diagram {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  font-size: var(--tex-base-size);
+}
+.article-body .tex-content .tex-diagram > svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+}
+
+.article-body .tex-content .tex-math > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+}
+
+/* Long displays scroll as one accessible unit instead of compressing symbols.
+ * An unnumbered display is centered; numbered displays reserve equal margins. */
+.article-body .tex-content .tex-display-scroll {
+  max-width: 100%;
+  margin: 1.1em 0 1.2em;
+  padding-block: .2em;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #b2beaa transparent;
+}
+
+.article-body .tex-content .tex-display-scroll:focus-visible {
+  outline: 2px solid #839875;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.article-body .tex-content .tex-display {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+  align-items: center;
+  min-width: max-content;
+  width: 100%;
+  column-gap: .7em;
+  padding: .15em .1em;
+}
+
+.article-body .tex-content .tex-display > .tex-math { grid-column: 2; }
+.article-body .tex-content .tex-display:has(> .tex-equation-number) {
+  grid-template-columns: minmax(2em, 1fr) max-content minmax(2em, 1fr);
+}
+.article-body .tex-content .tex-equation-number {
+  grid-column: 3;
+  justify-self: end;
+  font-size: .88em;
+  line-height: 1;
+  color: var(--reader-muted);
+  white-space: nowrap;
+}
+
+/* Keep the converter's table-based displays usable during normalization. */
+.article-body .tex-content .tex-display-scroll > table {
+  display: table;
+  width: 100%;
+  min-width: 100%;
+  margin: 0;
+  overflow: visible;
+}
+.article-body .tex-content .tex-display-scroll > table > tbody { display: table-row-group; }
+.article-body .tex-content .tex-display-scroll td.eq-no {
+  padding-inline: 1em 0;
+  font-size: .88em;
+  color: var(--reader-muted);
+  white-space: nowrap;
+}
+
+.article-body .tex-content :is(figure, .figure) {
+  margin: 1.8em 0;
+  text-align: center;
+}
+.article-body .tex-content :is(figcaption, .caption) {
+  font-family: var(--sans);
+  font-size: .65em;
+  line-height: 1.7;
+  color: var(--reader-muted);
+  margin-top: 1em;
+}
+.article-body .tex-content .footnotes {
+  border-top: 1px solid var(--reader-rule);
+  font-size: .8em;
+  line-height: 1.65;
+  margin-top: 2.5em;
+  padding-top: 1.2em;
+}
+
+@media (max-width: 580px) {
+  .article-body .tex-content { --tex-base-size: 18px; line-height: 1.7; }
+  .article-body .tex-content h2 { font-size: 1.38em; }
+  .article-body .tex-content div.newtheorem[data-environment] {
+    padding: .85em .85em .9em;
+    margin-block: 1.2em;
+  }
+  .article-body .tex-content .tex-display:has(> .tex-equation-number) {
+    grid-template-columns: minmax(1.5em, 1fr) max-content minmax(1.5em, 1fr);
+  }
+}
+
+@media print {
+  .article-body .tex-content {
+    --tex-base-size: 11.5pt;
+    line-height: 1.6;
+    max-width: none;
+    color: #000;
+  }
+  .article-body .tex-content div.newtheorem[data-environment] {
+    background: #fff;
+    border-color: #aaa;
+    break-inside: avoid;
+  }
+  .article-body .tex-content :is(h2, h3, h4, h5) { break-after: avoid; }
+  .article-body .tex-content p { orphans: 3; widows: 3; }
+  .article-body .tex-content .tex-display-scroll { overflow: visible; }
+}

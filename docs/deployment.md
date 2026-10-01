@@ -10,7 +10,7 @@ The workflow in `.github/workflows/pages.yml` runs on:
 - A pull request: build and check, without publishing.
 - Manual dispatch: build and check; publish only when the selected branch is `main`.
 
-The build job installs the TeX toolchain on Ubuntu 24.04, runs `npm ci`, compiles the source documents, and exports Next.js to `out/`. It then tests source validation and the generated HTML/PDF before checking TypeScript. Export verification checks article content and MathML, internal links and assets under the production base path, the sitemap, and RSS. The workflow also checks that the export contains `index.html`, `sitemap.xml`, and the actual `.nojekyll` file. The deploy job receives only an artifact that passed all these checks.
+The build job installs the TeX toolchain on Ubuntu 24.04, runs `npm ci`, compiles the source documents, and exports Next.js to `out/`. It then tests source validation and the generated HTML/PDF before checking TypeScript. Export verification checks article content, SVG visuals and their compiled assets, internal links and assets under the production base path, the sitemap, and RSS. The workflow also checks that the export contains `index.html`, `sitemap.xml`, and the actual `.nojekyll` file. The deploy job receives only an artifact that passed all these checks.
 
 The build token has `contents: read`. Only the deployment job receives `pages: write` and `id-token: write`. Dependencies are installed from the lockfile, and the official GitHub actions are pinned to release commit hashes. Deployment uses the `github-pages` environment.
 

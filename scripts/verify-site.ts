@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
+import type { Entry } from '../src/lib/content-types';
 
 const output = path.resolve('out');
 const base = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -37,14 +38,17 @@ for (const [file, $] of documents) {
     links++;
   });
 }
-const entries = JSON.parse(fs.readFileSync('generated/content.json', 'utf8')) as Array<{ slug: string; kind: string; title: string; html: string }>;
+const entries = JSON.parse(fs.readFileSync('generated/content.json', 'utf8')) as Entry[];
 for (const entry of entries) {
   const file = path.resolve(output, entry.kind === 'journal' ? 'journal' : 'notes', entry.slug, 'index.html');
   const $ = documents.get(file);
   if (!$) { failures.push(`Missing article ${entry.slug}`); continue; }
   if (!$('.tex-content').text().trim()) failures.push(`Empty article ${entry.slug}`);
-  const expectedMath = load(entry.html)('math').length;
-  if ($('.tex-content math').length !== expectedMath) failures.push(`MathML count changed while exporting ${entry.slug}`);
+  if ($('.tex-content [data-tex-visual]').length !== entry.visuals.length) failures.push(`Visual count changed while exporting ${entry.slug}`);
+  for (const visual of entry.visuals) {
+    if (!fs.existsSync(path.join(output, visual.asset))) failures.push(`Missing visual asset ${visual.asset}`);
+    if (!$(`[data-tex-visual="${visual.id}"] > svg`).length) failures.push(`Missing inline SVG ${visual.id}`);
+  }
   if (!$('link[rel="canonical"]').attr('href')?.includes(entry.slug)) failures.push(`Missing canonical for ${entry.slug}`);
 }
 assert.ok(fs.existsSync(path.join(output, '.nojekyll')), 'Missing .nojekyll');

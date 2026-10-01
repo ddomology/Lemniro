@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import * as cheerio from 'cheerio';
-import postcss from 'postcss';
-import type { Entry, EntryMetadata, OutlineItem } from '../src/lib/content-types';
+import type { Entry, EntryMetadata } from '../src/lib/content-types';
+import { extractDocument } from './tex-document';
+export { extractDocument, scopeCss } from './tex-document';
 
 export function parseMetadata(source: string, sourceName = 'LaTeX source'): EntryMetadata {
   const matches = [...source.matchAll(/^%\s*lemniro:\s*(\{[^\r\n]*\})\s*$/gm)];
@@ -71,92 +71,6 @@ export function standaloneSource(root: string, filename: string, stack: string[]
   });
 }
 
-function localAsset(reference: string, slug: string): string {
-  if (!reference || /^(?:#|\/|[a-z][a-z0-9+.-]*:)/i.test(reference)) return reference;
-  const normalized = reference.replace(/^\.\//, '');
-  if (normalized.startsWith('../')) throw new Error(`${slug}: an HTML asset escaped the document directory: ${reference}`);
-  return `../../tex/${slug}/${normalized}`;
-}
-
-export function scopeCss(source: string, slug: string): string {
-  const tree = postcss.parse(source);
-  tree.walkAtRules('import', () => { throw new Error(`${slug}: CSS imports are not supported; bundle the asset locally.`); });
-  tree.walkRules((rule) => {
-    if (rule.parent?.type === 'atrule' && /keyframes$/i.test(rule.parent.name)) return;
-    // The site owns page background and page width. Retain all document-level rules.
-    const selectors = rule.selectors.filter((selector) => !/^(?:html|body|:root)(?:\b|$)/.test(selector.trim()));
-    if (!selectors.length) { rule.remove(); return; }
-    rule.selectors = selectors.map((selector) => `.tex-content ${selector}`);
-  });
-  tree.walkDecls((declaration) => {
-    declaration.value = declaration.value.replace(/url\((['"]?)([^)'"\s]+)\1\)/g, (_whole, _quote: string, url: string) => `url("${localAsset(url, slug)}")`);
-  });
-  return tree.toString();
-}
-
-export function extractDocument(source: string, css: string, slug: string): Pick<Entry, 'title' | 'html' | 'css' | 'outline'> {
-  const $ = cheerio.load(source);
-  const title = $('h1.titleHead').first().text().replace(/\s+/g, ' ').trim() || $('title').text().trim();
-  if (!title) throw new Error(`${slug}: compiled LaTeX has no title. Include \\title{...} and \\maketitle.`);
-  $('.maketitle').remove();
-  if ($('body script, body iframe, body object, body embed').length) throw new Error(`${slug}: executable embeds are not supported in compiled notes.`);
-  $('body *').each((_index, element) => {
-    for (const [attribute, value] of Object.entries(element.attribs)) {
-      if (/^on/i.test(attribute) || /^(?:href|src)$/i.test(attribute) && /^\s*javascript:/i.test(value)) throw new Error(`${slug}: executable HTML is not supported in compiled notes.`);
-    }
-  });
-  // MathML Core does not paint bare text inside layout nodes such as mrow.
-  // Catch converter regressions (notably math after TikZ on older TeX4ht)
-  // before publishing formulas with silently missing symbols.
-  $('math, math *').each((_index, element) => {
-    if (/^(mi|mn|mo|mtext|ms|annotation|annotation-xml)$/.test(element.tagName)
-      || $(element).parents('annotation, annotation-xml').length) return;
-    const invalid = $(element).contents().toArray().find(node => node.type === 'text' && node.data.trim());
-    if (invalid?.type === 'text') throw new Error(`${slug}: malformed MathML: bare text '${invalid.data.trim().slice(0, 60)}' inside <${element.tagName}>. Inspect the TeX4ht configuration; publishing was stopped.`);
-  });
-  const outline: OutlineItem[] = [];
-  $('.sectionHead, .likesectionHead, .subsectionHead, .likesubsectionHead, .subsubsectionHead, .likesubsubsectionHead').each((index, element) => {
-    const heading = $(element);
-    const classes = heading.attr('class') ?? '';
-    const level = classes.includes('subsubsection') ? 4 : classes.includes('subsection') ? 3 : 2;
-    const text = heading.clone();
-    text.find('.titlemark').remove();
-    const headingTitle = text.text().replace(/\s+/g, ' ').trim();
-    const id = heading.attr('id') || `section-${index + 1}`;
-    heading.attr('id', id);
-    element.tagName = `h${level}`;
-    outline.push({ id, title: headingTitle, level });
-  });
-  $('.newtheorem').each((_index, element) => {
-    const name = $(element).find('.head').first().text().trim().match(/^(Definition|Theorem|Proposition|Lemma|Corollary|Example|Exercise|Remark)\b/i)?.[1];
-    if (!$(element).attr('data-environment')) $(element).attr('data-environment', name?.toLowerCase() || 'statement');
-  });
-  $('body [href], body [src], body [data]').each((_index, element) => {
-    for (const attribute of ['href', 'src', 'data']) {
-      const value = $(element).attr(attribute);
-      if (value === undefined) continue;
-      const sameDocument = value.replace(new RegExp(`^${slug}\\.html(?=#)`), '');
-      $(element).attr(attribute, localAsset(sameDocument, slug));
-    }
-  });
-  const ids = new Set<string>();
-  $('body [id]').each((_index, element) => {
-    const id = $(element).attr('id')!;
-    if (ids.has(id)) throw new Error(`${slug}: duplicate compiled HTML anchor '${id}'.`);
-    ids.add(id);
-  });
-  $('body a[href^="#"]').each((_index, element) => {
-    const id = decodeURIComponent($(element).attr('href')!.slice(1));
-    if (id && !ids.has(id)) throw new Error(`${slug}: broken compiled reference '#${id}'.`);
-  });
-  $('p').each((_index, element) => {
-    if (!$(element).text().trim() && !$(element).find('math,img,svg,a[id]').length) $(element).remove();
-  });
-  $('table.equation, table.equation-star, table.align, table.align-star').each((_index, element) => {
-    if (!$(element).parents('.tex-display-scroll').length) $(element).wrap('<div class="tex-display-scroll" tabindex="0" role="group" aria-label="Equation; scroll horizontally if needed"></div>');
-  });
-  return { title, html: $('body').html()!.trim(), css: scopeCss(css, slug), outline };
-}
 
 function run(command: string, args: string[], directory: string, logName: string): void {
   const result = spawnSync(command, args, { cwd: directory, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 180_000, windowsHide: true, shell: false });
@@ -185,14 +99,14 @@ export function compileEntry(root: string, relativeSource: string): Entry {
   for (const directory of ['tex', 'content']) cpSync(path.join(root, directory), path.join(work, directory), { recursive: true });
   for (const directory of ['html', 'pdf']) mkdirSync(path.join(work, directory));
   const texOptions = '-no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error';
-  run(process.env.MAKE4HT_BIN || 'make4ht', ['-a', 'warning', '-f', 'html5', '-c', 'tex/lemniro-html.cfg', '-d', 'html', relativeSource.replaceAll(path.sep, '/'), 'mathml,svg', '', '', texOptions], work, 'make4ht-command.log');
+  run(process.env.MAKE4HT_BIN || 'make4ht', ['-a', 'warning', '-f', 'html5+dvisvgm_hashes', '-c', 'tex/lemniro-html.cfg', '-e', 'tex/lemniro.mk4', '-d', 'html', relativeSource.replaceAll(path.sep, '/'), 'pic-m,pic-equation,pic-align,svg', '', '', texOptions], work, 'make4ht-command.log');
   assertResolvedLog(readFileSync(path.join(work, `${slug}.log`), 'utf8'), `${relativeSource} (HTML)`);
   const pdfArgs = ['-no-shell-escape', '-interaction=nonstopmode', '-halt-on-error', '-file-line-error', '-output-directory=pdf', relativeSource.replaceAll(path.sep, '/')];
   for (let pass = 1; pass <= 2; pass++) run(process.env.PDFLATEX_BIN || 'pdflatex', pdfArgs, work, `pdflatex-pass-${pass}.log`);
   assertResolvedLog(readFileSync(path.join(work, 'pdf', `${slug}.log`), 'utf8'), `${relativeSource} (PDF)`);
   const htmlFile = path.join(work, 'html', `${slug}.html`);
   const cssFile = path.join(work, 'html', `${slug}.css`);
-  const compiled = extractDocument(readFileSync(htmlFile, 'utf8'), readFileSync(cssFile, 'utf8'), slug);
+  const compiled = extractDocument(readFileSync(htmlFile, 'utf8'), readFileSync(cssFile, 'utf8'), slug, path.join(work, 'html'));
   const destination = path.join(root, '.build', 'tex-publish', slug);
   mkdirSync(destination, { recursive: true });
   cpSync(path.join(work, 'html'), destination, { recursive: true });
@@ -204,9 +118,10 @@ export function compileEntry(root: string, relativeSource: string): Entry {
     pdfPath: `/tex/${slug}/${slug}.pdf`,
     sourcePath: `/tex/${slug}/${slug}.tex`,
     assetsPath: `/tex/${slug}/`, sourceSha256,
-    compiler: { html: 'make4ht/TeX4ht', pdf: 'pdfLaTeX', math: 'MathML' },
+    compiler: { html: 'make4ht/TeX4ht', pdf: 'pdfLaTeX', math: 'TeX/dvisvgm', protocol: 1 },
   };
   writeFileSync(path.join(destination, 'provenance.json'), `${JSON.stringify({ source: relativeSource.replaceAll(path.sep, '/'), sourceSha256, compiler: entry.compiler }, null, 2)}\n`);
+  writeFileSync(path.join(destination, 'visuals.json'), `${JSON.stringify(compiled.visuals, null, 2)}\n`);
   return entry;
 }
 
@@ -223,7 +138,7 @@ export function buildContent(root: string): Entry[] {
   rmSync(stage, { recursive: true, force: true });
   mkdirSync(stage, { recursive: true });
   const entries = sources.map((source) => {
-    console.log(`Compiling ${source.replaceAll(path.sep, '/')} → HTML + MathML + PDF`);
+    console.log(`Compiling ${source.replaceAll(path.sep, '/')} → HTML + TeX SVG + PDF`);
     const entry = compileEntry(root, source);
     console.log(`  ${entry.title}: ${entry.outline.length} sections`);
     return entry;

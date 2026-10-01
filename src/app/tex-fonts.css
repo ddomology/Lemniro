@@ -1,0 +1,36 @@
+/* Self-hosted Latin Modern font faces. Reader layout lives in tex-reader.css. */
+@font-face {
+  font-family: 'Lemniro Roman';
+  src: url('../fonts/latin-modern/lmroman10-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lemniro Roman';
+  src: url('../fonts/latin-modern/lmroman10-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lemniro Roman';
+  src: url('../fonts/latin-modern/lmroman10-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lemniro Roman';
+  src: url('../fonts/latin-modern/lmroman10-bolditalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lemniro Math';
+  src: url('../fonts/latin-modern/latinmodern-math.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

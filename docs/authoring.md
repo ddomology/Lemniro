@@ -63,12 +63,11 @@ Write the full mathematical content in normal LaTeX. Give statements stable labe
 
 Keep new mathematical macros in `tex/lemniro-preamble.tex` when they should be shared. Both compilers read that file. Test a macro or package in both HTML and PDF before using it throughout a course.
 
-For macros defined in the preamble, use `\sp{...}` and `\sb{...}` for
-superscripts and subscripts, for example `\newcommand{\inv}[1]{#1\sp{-1}}`.
-These are standard TeX commands accepted by both outputs. TeX4ht activates
-`^` and `_` for HTML math after the preamble, so storing the literal characters
-in a preamble macro can lose its script markup. Ordinary formulas in the
-document body can use `^` and `_` as usual.
+Use ordinary `^` and `_` in formulas and preamble macros, for example
+`\newcommand{\inv}[1]{#1^{-1}}`. The web math is drawn from TeX's compiled
+output, so the old MathML-specific `\sp`/`\sb` workaround is unnecessary.
+The complete example checks that a preamble macro and its literal formula
+produce the same measured geometry.
 
 ## Checking a change
 
@@ -90,8 +89,8 @@ The generated directories are disposable. Edit `content/` and `tex/`, rather tha
 ## Whole-document web rendering
 
 The conversion runs for every discovered `.tex` article, not just selected formulas.
-`tex/lemniro-html.cfg` is the shared HTML configuration; `tex-typography.css` applies
-the same reading typography to every article. No hand-written React lesson is needed.
+`tex/lemniro-html.cfg` is the shared compiler adapter; `src/app/tex-reader.css`
+applies the reading design to every article. No hand-written React lesson is needed.
 
 | LaTeX content | Published web content |
 | --- | --- |
@@ -99,19 +98,31 @@ the same reading typography to every article. No hand-written React lesson is ne
 | Definition, theorem, proof, remark | HTML blocks with the compiled labels and text |
 | A custom `\newtheorem{claim}{Claim}` | A statement block carrying `data-environment="claim"` |
 | Lists and `tabular` | HTML lists and tables |
-| Inline/display math, `align`, matrices, cases | Structured MathML with the complete Latin Modern Math font |
-| `tikzpicture` | An SVG diagram inside the HTML figure |
+| Inline math | SVG glyphs positioned by TeX, with measured width, height, depth, and baseline |
+| A numbered `equation` | TeX SVG with a separate HTML equation number |
+| `align`, `gather`, `multline`, and their starred forms | One SVG per complete environment, including its internal spacing and numbers |
+| Matrices, cases, and other formula content | Drawn within the enclosing TeX visual |
+| `tikzpicture` | SVG paths inside the HTML figure; the caption remains text |
 | `\label`, `\ref`, `\eqref` | Compiled numbers and internal links |
 
-The browser lays out HTML paragraphs and MathML; it does not reproduce the PDF's
-page geometry or TeX's paragraph-breaking algorithm. Latin Modern aligns the
-web text and mathematics with the PDF's Computer Modern lineage. The full math
-font, including its MATH table and mathematical alphabets, is bundled locally.
+The browser wraps HTML prose while TeX places the symbols inside each visual.
+The web page therefore keeps TeX's formula shapes and spacing without fixing
+paragraphs to PDF page widths. Long display equations scroll horizontally on
+narrow screens. Formula internals do not reflow independently.
 
-The shared HTML configuration also balances TeX4ht's image/math state for TikZ
-on older TeX Live versions. The build rejects bare non-whitespace text in
-MathML layout nodes, which browsers can silently omit; this catches the known
-post-TikZ token-loss regression. It does not replace visual or mathematical review.
+Web colors, paragraph spacing, heading styles, statement frames, and display
+placement belong to CSS. Black SVG strokes and fills inherit `currentColor`;
+explicit diagram colors are retained. Changing the actual mathematical typeface
+requires changing the TeX font configuration and recompiling, because its glyphs
+are vector paths. See [the rendering contract](tex-rendering.md) for selectors
+and extension points.
+
+Prose remains selectable text. Formulas have text alternatives derived from
+TeX4ht's compiled text; diagrams can use their figure caption. These alternatives
+can flatten subscripts, fractions, and two-dimensional relationships, and a generic
+label is used if neither useful text nor a caption is available. They are not
+semantic MathML or exact TeX source. Explain important formulas and diagrams in
+the surrounding prose, and inspect text alternatives when reviewing an article.
 
 ### TikZ
 
@@ -123,8 +134,8 @@ Load the package and the libraries needed by the document normally:
 ```
 
 Write `tikzpicture` inside a normal `figure` and give it a descriptive `\caption`.
-TeX4ht uses its SVG driver for the diagram; `dvisvgm` handles vector conversion
-where needed. The caption and reference remain HTML. No screenshot or separate
+The TeX4ht/dvisvgm pipeline supplies the SVG drawing. The caption and reference
+remain HTML. No screenshot or separate
 manually maintained SVG source is required. Shell-dependent externalization is
 not enabled by this pipeline.
 
@@ -137,6 +148,6 @@ it under `content/notes/` and edit its metadata.
 
 ## Supported scope
 
-The current baseline uses the `article` class and the shared preamble. Support is grounded in the included notes and the complete example above. This is not a universal renderer for arbitrary document classes or packages: unusual output routines, bibliographies, external graphics dependencies, or advanced page layouts may require converter configuration and output checks. Add a representative example when extending support. A package compiling to PDF does not by itself prove that its HTML output is correct.
+The current baseline uses the `article` class and the shared preamble. Support is grounded in the included notes and the complete example above. Packages whose drawings compile through this TeX/DVI/SVG path can often be captured without recreating their drawing rules in JavaScript. The correct capture boundary still matters: visual blocks keep their internal layout, while document structure needs HTML conversion. Unusual output routines, bibliographies, external graphics dependencies, or advanced page layouts may require converter configuration and output checks. Add a representative example when extending support. A package compiling to PDF does not by itself prove that this DVI/SVG and HTML output is correct.
 
 PDF and HTML have different layout needs. A page break or margin choice that works in a PDF does not define a useful phone layout. Prefer logical structure in the source and leave web spacing and responsive layout to the site.

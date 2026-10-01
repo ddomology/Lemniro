@@ -81,12 +81,12 @@ test('all discovered sources have complete manifests and valid compiled download
   }
 });
 
-test('the optional topology samples retain native math and their complete proof', (context) => {
+test('the optional topology samples retain TeX visuals and their complete proof', (context) => {
   const entries = builtEntries();
   const topology = entries.find((entry) => entry.slug === 'topological-spaces');
   const proof = entries.find((entry) => entry.slug === 'compact-sets-are-closed');
   if (!topology || !proof) { context.skip('The example notes have been replaced by other authored content.'); return; }
-  assert.ok(cheerio.load(topology.html)('math').text().includes('ℝ'), 'the shared custom \\R macro compiles');
+  assert.ok(topology.visuals.some(v => v.alternativeText.includes('ℝ')), 'the shared custom \\R macro compiles');
   const $ = cheerio.load(proof.html);
   const text = $('body').text().replace(/\s+/g, ' ');
   assert.equal($('.proof').length, 2);
@@ -127,19 +127,54 @@ test('a complete lecture compiles semantic HTML, custom statements, AMS math, an
   const entry = compileEntry(isolated, path.join('content', 'notes', 'lecture-note.tex'));
   const $ = cheerio.load(entry.html);
   assert.ok($('p').length > 10, 'prose is HTML text');
+  assert.match(entry.title, /^Continuity of f\s*:/, 'title math has a readable text alternative');
+  assert.equal(entry.visuals.length, $('[data-tex-visual]').length, 'removed title graphics do not leak into the article manifest');
   assert.ok($('ol li').length >= 3 && $('ul li').length >= 1, 'lists retain structure');
   assert.ok($('table').length >= 1, 'tables retain structure');
   assert.equal($('[data-environment="claim"]').length, 1, 'custom theorem names survive');
   assert.equal($('[data-environment="theorem"]').length, 1);
   assert.equal($('.proof').length, 2);
-  assert.ok($('math mfrac').length > 0 && $('math mtable').length > 0, 'fractions and matrices retain math structure');
-  assert.ok($('[data-environment="definition"] msup').length > 0, 'the inverse-image macro keeps its superscript');
-  assert.ok($('math msqrt mn').text().includes('1'), 'math tokens survive the preceding TikZ image');
-  const figure = $('.figure img[src$=".svg"]');
+  assert.equal($('math,img.math,.tex-inline-metric').length, 0, 'all mathematics passes through the TeX visual adapter');
+  assert.ok(entry.visuals.filter(v => v.kind === 'display-math').length >= 6, 'complex display environments are rendered');
+  const macroExample = $('[data-environment="example"]').filter((_i, el) => $(el).find('.head').text().includes('Macro equivalence'));
+  const pair = macroExample.find('.tex-math').slice(0, 2).map((_i, el) => $(el).attr('data-tex-visual')).get().map(id => entry.visuals.find(v => v.id === id)!);
+  assert.equal(pair.length, 2);
+  for (const key of ['widthPt', 'heightPt', 'depthPt'] as const) assert.ok(Math.abs(pair[0].geometry[key] - pair[1].geometry[key]) < .001, `preamble macro and literal match in ${key}`);
+  const figure = $('.figure .tex-diagram');
   assert.equal(figure.length, 1, 'TikZ is a single vector diagram, not a screenshot of the document');
-  const filename = path.basename(figure.attr('src')!);
+  const figureAsset = entry.visuals.find(v => v.id === figure.attr('data-tex-visual'))!;
+  const filename = path.basename(figureAsset.asset);
   const svg = readFileSync(path.join(isolated, '.build', 'tex-publish', entry.slug, filename), 'utf8');
   assert.match(svg, /<svg\b/);
   assert.match(svg, /<(?:path|use)\b/);
   assert.ok($('.caption').text().includes('Continuous maps'));
+  for (const visual of entry.visuals) {
+    assert.ok(existsSync(path.join(isolated, '.build', 'tex-publish', entry.slug, path.basename(visual.asset))));
+    assert.ok(visual.geometry.widthPt > 0 && visual.geometry.heightPt + visual.geometry.depthPt > 0);
+  }
+});
+
+test('real TeX zero-size boxes preserve their dimensions and silent spacing', () => {
+  mkdirSync(path.join(root, '.build'), { recursive: true });
+  const isolated = mkdtempSync(path.join(root, '.build', 'zero-box-test-'));
+  mkdirSync(path.join(isolated, 'content', 'notes'), { recursive: true });
+  cpSync(path.join(root, 'tex'), path.join(isolated, 'tex'), { recursive: true });
+  writeFileSync(path.join(isolated, 'content', 'notes', 'zero-boxes.tex'), `${header(metadata)}\\documentclass{article}
+\\input{tex/lemniro-preamble}
+\\usepackage{mathtools}
+\\title{Geometry}
+\\begin{document}\\maketitle
+Ordinary $x$. Smash $\\smash{x}$. Overlap $\\mathrlap{x}$.
+Phantom $\\phantom{x}$. Strut $\\mathstrut$.
+\\end{document}
+`);
+  const entry = compileEntry(isolated, path.join('content', 'notes', 'zero-boxes.tex'));
+  const [ordinary, smash, lap, phantom, strut] = entry.visuals;
+  assert.equal(entry.visuals.length, 5);
+  assert.equal(smash.geometry.heightPt + smash.geometry.depthPt, 0);
+  assert.equal(lap.geometry.widthPt, 0);
+  assert.ok(Math.abs(ordinary.geometry.widthPt - phantom.geometry.widthPt) < .001);
+  assert.equal(phantom.alternativeText, '');
+  assert.equal(strut.alternativeText, '');
+  assert.ok(entry.visuals.every(visual => visual.layoutViewBox[2] > 0 && visual.layoutViewBox[3] > 0));
 });

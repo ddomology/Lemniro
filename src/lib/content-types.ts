@@ -1,3 +1,4 @@
+import type { TexVisual } from './tex-visual-types';
 export type ContentKind = 'note' | 'journal';
 
 export interface EntryMetadata {
@@ -23,8 +24,9 @@ export interface Entry extends EntryMetadata {
   slug: string;
   /** Obtained from the compiled LaTeX title, not a second authored field. */
   title: string;
-  /** Compiled HTML5 body containing native MathML. */
+  /** Semantic HTML5 with compiler-positioned SVG visual units. */
   html: string;
+  visuals: TexVisual[];
   /** TeX4ht styles scoped to .tex-content. */
   css: string;
   outline: OutlineItem[];
@@ -32,7 +34,7 @@ export interface Entry extends EntryMetadata {
   sourcePath: string;
   assetsPath: string;
   sourceSha256: string;
-  compiler: { html: 'make4ht/TeX4ht'; pdf: 'pdfLaTeX'; math: 'MathML' };
+  compiler: { html: 'make4ht/TeX4ht'; pdf: 'pdfLaTeX'; math: 'TeX/dvisvgm'; protocol: 1 };
 }
 
 export type ContentEntry = Entry;

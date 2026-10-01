@@ -1,0 +1,8 @@
+-- Keep SVG coordinates in unscaled PostScript points. TeX metrics in the
+-- companion HTML are TeX points; the adapter performs the 72/72.27 conversion.
+-- Reuse repeated visual pages within a build; compilation starts in a clean
+-- directory so changes to fonts/configuration cannot reuse stale drawings.
+filter_settings "dvisvgm_hashes" {
+  scale = 1,
+  options = "-n --exact --embed-bitmaps --currentcolor -c ${scale},${scale}"
+}

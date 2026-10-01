@@ -12,14 +12,18 @@ The `.tex` file is the source of the article. Definitions, theorems, proofs, exa
 content/notes/*.tex or content/journal/*.tex
               + tex/lemniro-preamble.tex
                            |
-                 make4ht + pdfLaTeX
+             make4ht / TeX4ht + dvisvgm
                            |
-          HTML + MathML + TikZ SVGs + PDF
+         semantic HTML + TeX-positioned SVG
                            |
-                  React / Next.js
+          document / visual normalization
+                           |
+           CSS reader + React / Next.js
                            |
                  GitHub Pages export
 ```
+
+The same source also compiles through pdfLaTeX to a downloadable PDF.
 
 1. Add or edit a `.tex` file in `content/notes/` or `content/journal/`.
 2. Keep its short `% lemniro: {...}` metadata comment at the top.
@@ -28,14 +32,14 @@ content/notes/*.tex or content/journal/*.tex
 
 Every article offers its PDF and TeX source. Shared macros live in `tex/lemniro-preamble.tex` and apply to both output formats. Generated HTML, PDFs, and content indexes are build outputs, not hand-maintained source files.
 
-See [Authoring notes](docs/authoring.md) for the supported lecture format and [Deployment](docs/deployment.md) for the workflow and site configuration.
+See [Authoring notes](docs/authoring.md) for the supported lecture format, [TeX rendering](docs/tex-rendering.md) for the HTML/SVG and CSS contract, and [Deployment](docs/deployment.md) for the workflow and site configuration.
 
 ## Local development
 
 Requirements:
 
 - Node.js 22 or newer and npm.
-- TeX Live with `make4ht`, `pdflatex`, TeX4ht, Latin Modern, and the standard LaTeX/AMS packages used by the shared preamble.
+- TeX Live with `make4ht`, `dvisvgm`, `pdflatex`, TeX4ht, Latin Modern, and the standard LaTeX/AMS packages used by the shared preamble.
 
 Ubuntu 24.04 uses the same packages as CI:
 
@@ -68,8 +72,10 @@ The `postbuild` step also works around [Next.js's Windows static-export segment 
 ## What this foundation includes
 
 - Notes and journal articles generated from real LaTeX compilation.
-- Selectable HTML text, structured MathML formulas, and TikZ SVG figures, plus a PDF from the same source.
-- Self-hosted Latin Modern text and math fonts, matching the PDF's font family.
+- Selectable HTML prose with responsive paragraphs; actual TeX math and TikZ drawings embedded as SVG, plus a PDF from the same source.
+- TeX-measured inline baselines and spacing, with complete multiline equation blocks retained as one visual.
+- Self-hosted Latin Modern text fonts alongside TeX-drawn mathematics. Reader typography, colors, statement frames, and display spacing are controlled by CSS.
+- A separate visual manifest with dimensions, asset hashes, and text alternatives for each formula or diagram.
 - A shared lecture-note preamble for definitions, theorems, proofs, examples, exercises, and references.
 - A static React site with individual article URLs and discovery metadata.
 - CI checks on pull requests and automatic GitHub Pages deployment from `main`.
@@ -78,4 +84,4 @@ The `postbuild` step also works around [Next.js's Windows static-export segment 
 
 No YouTube channel or videos are invented by the scaffold. Video production and Chalkspace integration are future work. The website can publish written material independently.
 
-This is a tested authoring convention for lecture notes, not a promise that every document class or LaTeX package can be rendered faithfully as HTML. Start with the examples and add new TeX features alongside HTML/PDF verification. Search metadata and readable static pages make the material discoverable; they do not guarantee indexing, ranking, or traffic.
+The supported baseline is `article` lecture notes using the shared preamble and the included examples. TeX owns the contents of each SVG; the browser owns paragraph wrapping and page layout. Additional packages may need a visual-environment adapter and output checks. SVG text alternatives come from compiled text or captions; they are not semantic MathML or a lossless copy of the original formula. Search metadata and readable static pages make the material discoverable; they do not guarantee indexing, ranking, or traffic.
