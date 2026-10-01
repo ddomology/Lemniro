@@ -12,6 +12,7 @@ typesetting pass.
 | --- | --- |
 | `tex/lemniro-preamble.tex` | Shared notation, theorem definitions, and TeX font/package choices for web and PDF |
 | `tex/lemniro-html.cfg` | HTML environment hooks, visual capture boundaries, inline measurements, and baseline-origin markers |
+| `tex/lemniro-compat.tex` | Narrow, regression-tested compatibility fixes for older TeX4ht releases |
 | `tex/lemniro.mk4` | dvisvgm conversion settings: unscaled coordinates, glyph paths, embedded bitmaps, and inherited black ink |
 | `scripts/tex-pipeline.ts` | Metadata, source flattening, clean compiler runs, log validation, and publication staging |
 | `scripts/tex-document.ts` | Article title/outline, semantic classes, scoped converter CSS, normalized display containers, and reference validation |
@@ -123,6 +124,12 @@ the visual adapter, and visual styling in CSS. Add an integration fixture for
 new behavior. The internal `\pic:math` hook used for baseline markers is an
 explicit TeX4ht compatibility point; rerun the integration examples when
 upgrading TeX Live.
+
+The compatibility file trims stray trailing spaces in four TeX4ht script-toggle
+macros on TeX Live 2023. Those spaces otherwise inflate every measured inline
+formula. It preserves the installed macro bodies and is harmless on corrected
+releases. The zero-box integration test injects the historical condition, so a
+newer local TeX installation still exercises the fix used by Ubuntu CI.
 
 Compilations start in a clean per-document directory. dvisvgm's hashed-image
 reuse therefore cannot keep old drawings across changed font or converter

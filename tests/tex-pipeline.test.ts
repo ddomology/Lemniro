@@ -154,11 +154,21 @@ test('a complete lecture compiles semantic HTML, custom statements, AMS math, an
   }
 });
 
-test('real TeX zero-size boxes preserve their dimensions and silent spacing', () => {
+test('real TeX zero-size boxes survive legacy script-toggle whitespace and keep spacing silent', () => {
   mkdirSync(path.join(root, '.build'), { recursive: true });
   const isolated = mkdtempSync(path.join(root, '.build', 'zero-box-test-'));
   mkdirSync(path.join(isolated, 'content', 'notes'), { recursive: true });
   cpSync(path.join(root, 'tex'), path.join(isolated, 'tex'), { recursive: true });
+  // Reproduce the TeX Live 2023 bug even when tests run on newer TeX4ht.
+  const config = path.join(isolated, 'tex', 'lemniro-html.cfg');
+  const compatibilityHook = '\\input{tex/lemniro-compat}';
+  const source = readFileSync(config, 'utf8');
+  assert.ok(source.includes(compatibilityHook));
+  writeFileSync(config, source.replace(compatibilityHook, `\\ExplSyntaxOn
+\\clist_map_inline:nn { SUBOn, SUPOn, x:SUBOn, x:SUPOn }
+  { \\tl_put_right:cn {#1} { ~ } }
+\\ExplSyntaxOff
+${compatibilityHook}`));
   writeFileSync(path.join(isolated, 'content', 'notes', 'zero-boxes.tex'), `${header(metadata)}\\documentclass{article}
 \\input{tex/lemniro-preamble}
 \\usepackage{mathtools}

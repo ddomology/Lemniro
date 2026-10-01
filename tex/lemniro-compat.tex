@@ -1,0 +1,18 @@
+% TeX4ht releases shipped with TeX Live 2023 leave trailing space tokens in
+% these script toggles. In a picture's horizontal box they inflate formula
+% widths by two interword spaces (6.66666pt at 10pt). Modern TeX4ht adds a %
+% after the final \let\sb=_ / \let\sp=^ instead. Trim only those boundary
+% spaces, retaining the installed release's actual macro bodies unchanged.
+% The real-TeX zero-box integration test injects this old condition explicitly.
+\ExplSyntaxOn
+\cs_new_protected:Npn \lemniro_trim_macro:N #1
+  {
+    \tl_set:No \l_tmpa_tl {#1}
+    \tl_trim_spaces:N \l_tmpa_tl
+    \cs_set_eq:NN #1 \l_tmpa_tl
+  }
+\exp_args:Nc \lemniro_trim_macro:N {SUBOn}
+\exp_args:Nc \lemniro_trim_macro:N {SUPOn}
+\exp_args:Nc \lemniro_trim_macro:N {x:SUBOn}
+\exp_args:Nc \lemniro_trim_macro:N {x:SUPOn}
+\ExplSyntaxOff
