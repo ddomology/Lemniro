@@ -1,0 +1,79 @@
+/* Semantic environments come from the compiled LaTeX, including their labels. */
+.article-body .tex-content div.newtheorem[data-environment] {
+  --block-paper: #eef2e8;
+  --block-line: #c9d3c0;
+  --block-ink: #36533c;
+  background: var(--block-paper);
+  border: 1px solid var(--block-line);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.8;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='definition'] {
+  --block-paper: #eef2f0;
+  --block-line: #c6d3ce;
+  --block-ink: #3c6158;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='remark'] {
+  --block-paper: #f4eee5;
+  --block-line: #ddcebd;
+  --block-ink: #825c40;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='example'] {
+  --block-paper: #f3f1e8;
+  --block-line: #d8d2bd;
+  --block-ink: #756338;
+}
+
+.article-body .tex-content div.newtheorem[data-environment='exercise'] {
+  --block-paper: #f0f0eb;
+  --block-line: #cfd2c6;
+  --block-ink: #596149;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > p:first-of-type > .head {
+  display: block;
+  color: var(--block-ink);
+  border-bottom: 1px solid var(--block-line);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  font-size: 0.94em;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.55;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > p:first-of-type > .head span {
+  font-style: normal;
+}
+
+.article-body .tex-content div.newtheorem[data-environment] > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 580px) {
+  .article-body .tex-content div.newtheorem[data-environment] {
+    padding: 17px 16px;
+    margin-block: 1.4em;
+  }
+}
+
+@media print {
+  .article-body .tex-content div.newtheorem[data-environment] {
+    background: #fff;
+    border-color: #aaa;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+
+  .article-body .tex-content div.newtheorem[data-environment] > p:first-of-type > .head {
+    color: #000;
+    border-color: #ccc;
+  }
+}

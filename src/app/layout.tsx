@@ -3,6 +3,7 @@ import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { asset, site } from '@/lib/site';
 import './globals.css';
+import './math-blocks.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(`${site.url}/`),
