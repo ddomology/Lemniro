@@ -1,0 +1,47 @@
+% lemniro: {"kind":"journal","description":"The small word finite does a large amount of work in topology. A shrinking-interval example explains why.","topic":"Topology","date":"2026-10-01","readingMinutes":5,"prerequisites":["Open intervals"],"related":["topological-spaces","compact-sets-are-closed"]}
+\documentclass[11pt]{article}
+\input{tex/lemniro-preamble}
+\title{The work done by the word finite}
+\begin{document}
+\maketitle
+
+\section{An intersection that loses its room}
+For each positive integer $n$, let $U_n=(-1/n,1/n)$. Every $U_n$ gives
+zero some room: it contains a whole interval around zero. Any finite
+selection of these intervals still does so. If the largest selected
+index is $N$, then the intersection of that selection is exactly
+$U_N$.
+
+The infinite intersection behaves differently:
+\begin{equation}\label{eq:intersection}
+  \bigcap_{n=1}^{\infty}U_n=\set{0}.
+\end{equation}
+Zero belongs to every interval, so it belongs to the intersection. If
+$x\ne0$, choose an integer $n>1/|x|$. Then $1/n<|x|$, which means that
+$x\notin U_n$. Thus no nonzero point belongs to the intersection,
+proving Equation~\ref{eq:intersection}.
+
+The resulting singleton is not open in $\R$. Each finite stage leaves
+an open neighborhood, while the intersection of all stages does not.
+There is no contradiction: arbitrary intersections of open sets are
+not among the topology axioms.
+
+\section{A proof-reading habit}
+Whenever a proof intersects open neighborhoods, pause at the index set.
+If the author has just chosen a finite subcover, that choice may be
+doing more than shortening notation. It may be the exact reason the
+next intersection remains open.
+
+In the compact-Hausdorff argument, we begin with one separating
+neighborhood for each point of a compact set. Compactness lets us keep
+only finitely many. Their intersection then supplies a neighborhood
+of the point outside the set. The word ``finite'' is the bridge from
+a family of local choices to a valid open set.
+
+\begin{remark}
+An infinite intersection can still be open. For example,
+$\bigcap_{n\in\N}\R=\R$. Equation~\ref{eq:intersection} shows that
+openness is not guaranteed; it does not say that infinite
+intersections are always nonopen.
+\end{remark}
+\end{document}

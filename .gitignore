@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+.env*.local
+*.tsbuildinfo
+generated/
+public/tex/
+.cache/
+.build/
+work/

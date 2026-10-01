@@ -1,0 +1,110 @@
+% lemniro: {"kind":"note","description":"Open sets, neighborhoods, and the Hausdorff condition, with examples and a complete uniqueness proof.","topic":"Topology","series":"A first course in topology","order":1,"date":"2026-10-01","readingMinutes":12,"prerequisites":["Sets and functions","Unions and intersections"],"related":["compact-sets-are-closed","finite-intersections"]}
+\documentclass[11pt]{article}
+\input{tex/lemniro-preamble}
+\title{Topological spaces and separation}
+\begin{document}
+\maketitle
+
+\section{A language for nearness}
+The usual distance on $\R$ tells us whether a point lies near another
+point. Topology keeps the notion of an open neighborhood while allowing us
+to forget the particular distance that produced it. The starting data are
+a set and a distinguished collection of its subsets.
+
+\begin{definition}[Topology]\label{def:topology}
+A topology on a set $X$ is a collection $\T\subseteq\powerset{X}$ such that:
+\begin{enumerate}
+  \item $\varnothing\in\T$ and $X\in\T$;
+  \item the union of any family of members of $\T$ belongs to $\T$;
+  \item the intersection of any finite family of members of $\T$ belongs to $\T$.
+\end{enumerate}
+The pair $(X,\T)$ is a topological space, and the members of $\T$ are
+called open sets. A subset $F\subseteq X$ is closed if $X\setminus F$ is open.
+\end{definition}
+
+The word ``finite'' in Definition~\ref{def:topology} is essential. For
+example, each interval $(-1/n,1/n)$ is open in the usual topology on $\R$, but
+\begin{equation}\label{eq:shrinking}
+  \bigcap_{n\in\N}(-1/n,1/n)=\set{0},
+\end{equation}
+where $\N=\set{1,2,3,\ldots}$. The singleton on the right is not open: no
+interval centered at zero fits inside it. This distinguishes a permitted
+finite intersection from a countable intersection that need not be open.
+
+\begin{example}[Three topologies]
+The discrete topology on $X$ is $\powerset{X}$; every subset is open.
+The indiscrete topology is $\set{\varnothing,X}$. On $\R$, the usual
+topology consists of the sets $U$ for which every $x\in U$ has an
+$\varepsilon>0$ satisfying $(x-\varepsilon,x+\varepsilon)\subseteq U$.
+These examples share the axioms, but they contain very different
+information about individual points.
+\end{example}
+
+\section{Neighborhoods and convergence}
+An open neighborhood of $x\in X$ is an open set containing $x$.
+In this note, whenever we say ``neighborhood'' without qualification we
+mean an open neighborhood. A sequence $(x_n)_{n\in\N}$ converges to $x$ if
+for every open neighborhood $U$ of $x$ there is an $N\in\N$ such that
+$x_n\in U$ for all $n\geq N$.
+
+This definition uses only open sets. In the usual topology on $\R$, it
+agrees with the familiar epsilon definition: the intervals
+$(x-\varepsilon,x+\varepsilon)$ suffice to test convergence because every
+open neighborhood of $x$ contains one of them.
+
+In an indiscrete space, every sequence converges to every point. There is
+only one nonempty open set to test, namely the whole space. To exclude this
+failure of uniqueness we impose a separation condition.
+
+\section{The Hausdorff condition}
+\begin{definition}[Hausdorff space]\label{def:hausdorff}
+A space $X$ is Hausdorff if for every pair of distinct points $x,y\in X$
+there are open sets $U,V\subseteq X$ such that
+\[
+  x\in U,\qquad y\in V,\qquad U\cap V=\varnothing.
+\]
+\end{definition}
+
+\begin{example}
+The usual real line is Hausdorff. If $x\ne y$, let
+$r=|x-y|/3$. Then $(x-r,x+r)$ and $(y-r,y+r)$ are disjoint neighborhoods
+of $x$ and $y$. Every discrete space is Hausdorff as well: use the
+singletons $\set{x}$ and $\set{y}$. An indiscrete space with at least two
+points is not Hausdorff, because its only nonempty open set is $X$.
+\end{example}
+
+\begin{proposition}\label{prop:unique-limit}
+A sequence in a Hausdorff space has at most one limit.
+\end{proposition}
+\begin{proof}
+Suppose that a sequence $(x_n)$ converges both to $x$ and to $y$, and
+assume for a contradiction that $x\ne y$. By
+Definition~\ref{def:hausdorff}, choose disjoint open neighborhoods $U$ of
+$x$ and $V$ of $y$. Convergence to $x$ provides an index $N_U$ such that
+$x_n\in U$ whenever $n\geq N_U$. Convergence to $y$ similarly provides
+$N_V$ such that $x_n\in V$ whenever $n\geq N_V$. For
+$n\geq\max\set{N_U,N_V}$, both conclusions hold, so
+$x_n\in U\cap V=\varnothing$, which is impossible. Hence $x=y$.
+\end{proof}
+
+\begin{remark}
+Proposition~\ref{prop:unique-limit} proves one consequence of the
+Hausdorff condition. It does not say that uniqueness of sequence limits
+characterizes Hausdorff spaces. Sequences alone need not detect all
+topological behavior in an arbitrary space.
+\end{remark}
+
+\section{What to keep in view}
+The axioms allow arbitrary unions but only finite intersections.
+The Hausdorff condition lets us separate two points by disjoint open
+neighborhoods. In the next note, compactness will turn infinitely many
+pointwise separations into finitely many, and the finite-intersection
+axiom will then produce a single open neighborhood.
+
+\begin{exercise}
+Show that every singleton is closed in a Hausdorff space. Fix $x\in X$,
+and for each $y\ne x$ find an open neighborhood of $y$ that does not
+contain $x$. Explain why the union of those neighborhoods is exactly
+$X\setminus\set{x}$.
+\end{exercise}
+\end{document}

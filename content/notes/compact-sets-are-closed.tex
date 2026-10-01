@@ -1,0 +1,115 @@
+% lemniro: {"kind":"note","description":"A complete proof that compact subsets of Hausdorff spaces are closed, with every use of the hypotheses made explicit.","topic":"Topology","series":"A first course in topology","order":2,"date":"2026-10-01","readingMinutes":14,"prerequisites":["Topological spaces","Open covers","The Hausdorff condition"],"related":["topological-spaces","finite-intersections"]}
+\documentclass[11pt]{article}
+\input{tex/lemniro-preamble}
+\title{Why compact sets are closed in Hausdorff spaces}
+\begin{document}
+\maketitle
+
+\section{From two points to a whole set}
+The Hausdorff condition separates two distinct points by disjoint open
+neighborhoods. Our goal is to separate a point from an entire compact
+subset. Compactness makes that change of scale possible: it reduces an
+open cover, which may be infinite, to finitely many of its members.
+
+\begin{definition}[Compact subset]\label{def:compact}
+A subset $K$ of a topological space $X$ is compact if every family
+$\set{V_\alpha}_{\alpha\in A}$ of open subsets of $X$ with
+$K\subseteq\bigcup_{\alpha\in A}V_\alpha$ has a finite subfamily
+$V_{\alpha_1},\ldots,V_{\alpha_n}$ whose union still contains $K$.
+\end{definition}
+
+This is equivalent to compactness in the subspace topology. Indeed,
+every set open in $K$ has the form $K\cap V$ with $V$ open in $X$, so we
+can pass between the two kinds of cover without changing whether a
+finite subcover exists.
+
+\begin{theorem}\label{thm:compact-closed}
+Every compact subset of a Hausdorff space is closed.
+\end{theorem}
+
+\section{The proof, with its dependencies visible}
+\begin{proof}
+Let $X$ be a Hausdorff space and let $K\subseteq X$ be compact. If
+$K=\varnothing$, then $K$ is closed because its complement is the open
+set $X$. Hence we may assume that $K$ is nonempty.
+
+To prove that $K$ is closed, it suffices to prove that $X\setminus K$ is
+open. Fix an arbitrary point $x\in X\setminus K$. We will construct an
+open neighborhood $U$ of $x$ contained in $X\setminus K$.
+
+For each $y\in K$, we have $x\ne y$. Since $X$ is Hausdorff, there are
+open sets $U_y,V_y\subseteq X$ satisfying
+\begin{equation}\label{eq:pair-separation}
+  x\in U_y,\qquad y\in V_y,\qquad U_y\cap V_y=\varnothing.
+\end{equation}
+The family $\set{V_y}_{y\in K}$ is an open cover of $K$: each point
+$y\in K$ belongs to its own set $V_y$. By compactness and
+Definition~\ref{def:compact}, there are finitely many points
+$y_1,\ldots,y_n\in K$ such that
+\begin{equation}\label{eq:finite-cover}
+  K\subseteq V_{y_1}\cup\cdots\cup V_{y_n}.
+\end{equation}
+Because $K$ is nonempty, the finite subcover may be taken with $n\geq1$.
+Define
+\begin{equation}\label{eq:chosen-neighborhood}
+  U=\bigcap_{i=1}^{n}U_{y_i},
+  \qquad
+  V=\bigcup_{i=1}^{n}V_{y_i}.
+\end{equation}
+The set $U$ is open because it is a finite intersection of open sets.
+Also $x\in U$, since $x\in U_{y_i}$ for every $i$. Thus $U$ is an
+open neighborhood of $x$. Equation~\ref{eq:finite-cover} gives
+$K\subseteq V$.
+
+We claim that $U\cap V=\varnothing$. Otherwise, choose $z\in U\cap V$.
+Since $z\in V$, there is an index $j\in\set{1,\ldots,n}$ with
+$z\in V_{y_j}$. Since $z\in U$, we also have $z\in U_{y_j}$.
+Consequently $z\in U_{y_j}\cap V_{y_j}$, contradicting
+Equation~\ref{eq:pair-separation}. This proves the claim.
+
+As $K\subseteq V$ and $U\cap V=\varnothing$, we obtain
+$U\cap K=\varnothing$, or equivalently $U\subseteq X\setminus K$.
+Every point $x\in X\setminus K$ therefore has an open neighborhood
+contained in $X\setminus K$. The complement is the union of those open
+neighborhoods, so it is open. If the complement is empty, it is open by
+the topology axioms. In either case $K$ is closed.
+\end{proof}
+
+\section{Why the finite subcover matters}
+It is tempting to set $U=\bigcap_{y\in K}U_y$ before using compactness.
+This intersection would contain $x$ and avoid $K$, but it need not be
+open. A topology guarantees openness only for finite intersections.
+Equation~\ref{eq:finite-cover} is precisely what permits the finite
+intersection in Equation~\ref{eq:chosen-neighborhood}.
+
+The two hypotheses have distinct jobs. The Hausdorff property supplies
+the pairwise separations in Equation~\ref{eq:pair-separation}.
+Compactness supplies the finite selection. Finally, the topology axioms
+assemble that finite selection into one usable neighborhood.
+
+\section{A hypothesis we cannot discard}
+\begin{example}[A compact set that is not closed]
+Let $X=\set{a,b}$ have the indiscrete topology
+$\set{\varnothing,X}$. The singleton $K=\set{a}$ is compact: every open
+cover of $K$ contains $X$, and that one set is a finite subcover. But
+$K$ is not closed, because $X\setminus K=\set{b}$ is not open. The
+space is not Hausdorff, so this does not contradict
+Theorem~\ref{thm:compact-closed}.
+\end{example}
+
+\begin{corollary}
+If $K$ is compact in a Hausdorff space, then $\closure{K}=K$.
+\end{corollary}
+\begin{proof}
+The closure $\closure{K}$ is the smallest closed subset containing $K$.
+Theorem~\ref{thm:compact-closed} says that $K$ is already closed, so
+$\closure{K}\subseteq K$. The reverse inclusion holds for the closure
+of every subset. Therefore equality follows.
+\end{proof}
+
+\begin{exercise}
+Read the construction of $U$ and $V$ again. Explain why it proves the
+stronger statement that a point outside a compact subset of a Hausdorff
+space can be separated from that subset by disjoint open sets.
+\end{exercise}
+\end{document}
