@@ -1,0 +1,89 @@
+% lemniro: {"kind":"note","description":"A circle, its vertical projection, and the differential equation behind a sine wave, with three independent interactive figures.","topic":"Analysis","series":"Geometry in motion","order":1,"date":"2026-10-03","readingMinutes":7,"prerequisites":["Trigonometric functions","The chain rule"],"related":[]}
+\documentclass[11pt]{article}
+\input{tex/lemniro-preamble}
+\title{A circle becomes a sine wave}
+\begin{document}
+\maketitle
+
+\section{Keep one coordinate}
+Fix a period $T>0$ and a phase $\phi\in\R$. A point moving uniformly
+around the unit circle has position
+\begin{equation}\label{eq:circle}
+  p_\phi(t)=\bigl(\cos\theta(t),\sin\theta(t)\bigr),
+  \qquad \theta(t)=\frac{2\pi}{T}t+\phi.
+\end{equation}
+The equation $\cos^2\theta+\sin^2\theta=1$ keeps the point on the circle.
+Its second coordinate is the function
+\[
+  u_\phi(t)=\sin\!\left(\frac{2\pi}{T}t+\phi\right).
+\]
+Recording that height against time produces a sine wave. The horizontal
+coordinate of the graph is time, not the moving point's horizontal coordinate.
+The two diagrams therefore share their vertical value while using different
+horizontal coordinates.
+
+\LemniroScene{circle-and-sine}
+
+Use the time slider to compare the same height on both diagrams. The moving
+dashed connector makes this equality visible. The figure uses an eight-second
+cycle and screen coordinates; its vertical pixel coordinate decreases when
+the mathematical height increases. That display convention does not change
+the function in Equation~\ref{eq:circle}.
+
+\section{The equation behind the motion}
+\begin{theorem}[Harmonic motion]\label{thm:harmonic}
+Let $\omega=2\pi/T$. For every phase $\phi$, the function
+$u_\phi(t)=\sin(\omega t+\phi)$ satisfies
+\begin{equation}\label{eq:oscillator}
+  u_\phi''(t)+\omega^2u_\phi(t)=0
+\end{equation}
+and $u_\phi(t+T)=u_\phi(t)$ for every real $t$.
+\end{theorem}
+\begin{proof}
+The chain rule gives
+\[
+  u_\phi'(t)=\omega\cos(\omega t+\phi),
+  \qquad
+  u_\phi''(t)=-\omega^2\sin(\omega t+\phi)=-\omega^2u_\phi(t).
+\]
+Moving the final term to the left proves Equation~\ref{eq:oscillator}.
+For periodicity, substitute $t+T$ and use $\omega T=2\pi$:
+\[
+  u_\phi(t+T)=\sin(\omega t+\phi+2\pi)
+             =\sin(\omega t+\phi)=u_\phi(t).
+\]
+Both claims hold for every real $t$, as required.
+\end{proof}
+
+\LemniroScene{circle-and-sine}
+
+Pause near a maximum. The height is momentarily stationary, so its first
+derivative is zero, while its second derivative points back toward height
+zero. Theorem~\ref{thm:harmonic} states that relation at every time. The
+animation illustrates the theorem; the derivatives in the proof establish it.
+
+\section{Change the phase, keep the period}
+Phase changes the starting point without changing the angular speed.
+Indeed,
+\[
+  u_\phi(t)=u_0\!\left(t+\frac{\phi}{\omega}\right).
+\]
+Thus increasing the phase shifts the same waveform horizontally in time.
+For example, $u_0(0)=0$, whereas $u_{\pi/2}(0)=1$. Both functions still
+return to their starting values after time $T$.
+
+\LemniroScene{circle-and-sine}
+
+The three copies above have independent playback and time controls. Set two
+copies to times separated by $T/4$ and compare their heights: that time offset
+corresponds to a phase difference of $\pi/2$. Changing one copy's time or
+playback speed does not change another copy's playback state.
+The PDF retains static illustrations and this explanation; the web edition
+adds the controls.
+
+\begin{exercise}
+For $v(t)=A\sin(\omega t+\phi)$, where $A\in\R$, verify that
+$v''+\omega^2v=0$. Then find the values of $v(0)$ and $v'(0)$, and explain
+how amplitude and phase affect these initial data.
+\end{exercise}
+\end{document}

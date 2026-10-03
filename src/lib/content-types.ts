@@ -1,4 +1,6 @@
 import type { TexVisual } from './tex-visual-types';
+import type { ContentBlock } from './texloom-types';
+export type { ContentBlock, LemniroFigureReference } from './texloom-types';
 export type ContentKind = 'note' | 'journal';
 
 export interface EntryMetadata {
@@ -26,6 +28,8 @@ export interface Entry extends EntryMetadata {
   title: string;
   /** Semantic HTML5 with compiler-positioned SVG visual units. */
   html: string;
+  /** Ordered HTML/figure boundaries; html remains the complete static fallback. */
+  bodyBlocks?: ContentBlock[];
   visuals: TexVisual[];
   /** TeX4ht styles scoped to .tex-content. */
   css: string;

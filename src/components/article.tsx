@@ -4,6 +4,7 @@ import { entryPath, getAllEntries } from '@/lib/content';
 import { absolute, asset, site } from '@/lib/site';
 import { Arrow } from './brand';
 import { SubjectTag } from './subject-tag';
+import { TexDocument } from './tex-document';
 
 function formattedDate(date: string) {
   return new Intl.DateTimeFormat('en', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${date.slice(0, 10)}T12:00:00Z`));
@@ -27,7 +28,7 @@ export function Article({ entry }: { entry: Entry }) {
         </aside>
         <article className="article-body">
           {entry.css && <style dangerouslySetInnerHTML={{ __html: entry.css }} />}
-          <div className="tex-content" dangerouslySetInnerHTML={{ __html: entry.html }} />
+          <TexDocument entry={entry} />
           {entry.videoId && <section className="article-video"><h2>Watch the lecture</h2><a className="text-link" href={`https://www.youtube.com/watch?v=${encodeURIComponent(entry.videoId)}`}>Open the accompanying video <Arrow diagonal /></a></section>}
           <div className="article-colophon"><span className="colophon-square" aria-hidden="true">∎</span><p>Found something worth revisiting?<br />The <a href={asset(entry.pdfPath)}>PDF</a> is yours to keep, and the <a href={asset(entry.sourcePath)}>source</a> is open to explore.</p><a href={`${site.repository}/issues`}>Suggest a correction <Arrow diagonal /></a></div>
         </article>

@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
 \usepackage[margin=1.1in]{geometry}
 \usepackage[pdfusetitle]{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
@@ -23,5 +24,26 @@
 \newcommand{\set}[1]{\left\{#1\right\}}
 \newcommand{\powerset}[1]{\mathcal{P}(#1)}
 \DeclareMathOperator{\Int}{Int}
+% The HTML adapter replaces only this renderer. The public authoring command
+% keeps the literal catalog-ID guard in both compilation paths.
+\newcommand{\LemniroSceneOutput}[1]{%
+  \par\medskip\noindent
+  \fbox{\begin{minipage}{0.92\linewidth}
+    \centering
+    \IfFileExists{texloom-assets/#1/poster.pdf}{%
+      \includegraphics[width=\linewidth]{texloom-assets/#1/poster.pdf}\par\smallskip}{}%
+    \raggedright\textbf{Interactive mathematical figure: \texttt{#1}.}\par
+    The web edition provides playback, seeking, and a textual explanation.
+    This PDF preserves the surrounding statement and proof.\par
+    \href{https://ddomology.github.io/Lemniro/}{Open the Lemniro web edition.}
+  \end{minipage}}\par\medskip
+}
+\ExplSyntaxOn
+\NewDocumentCommand{\LemniroScene}{m}{%
+  \regex_match:nnTF { \A [a-z0-9]+ ( - [a-z0-9]+ )* \Z } {#1}
+    { \LemniroSceneOutput{#1} }
+    { \PackageError{lemniro}{Invalid~scene~reference}{Use~a~literal~lowercase~hyphenated~catalog~ID.} }
+}
+\ExplSyntaxOff
 \author{Lemniro}
 \date{}

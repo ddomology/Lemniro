@@ -1,0 +1,14 @@
+[
+  {
+    "contract": "texloom-figure/1",
+    "id": "circle-and-sine",
+    "manifestPath": "texloom/circle-and-sine/scene.json",
+    "manifestSha256": "08dd6295caf84f408cc7e258831da28e5c17aad003cd51918ab9d4ca3204fc60",
+    "posterPath": "texloom/circle-and-sine/poster.svg",
+    "title": "A circle becomes a sine wave",
+    "description": "A point moves around a circle while its vertical height traces a sine wave. A dashed horizontal connector shows the matching heights. Use the time slider to compare positions through one eight-second cycle.",
+    "width": 720,
+    "height": 450,
+    "duration": 8
+  }
+]

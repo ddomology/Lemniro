@@ -146,6 +146,42 @@ equations, nested lists, a table, and a footnote. It is compiled by integration
 tests but is not automatically published as a lesson. To publish a copy, place
 it under `content/notes/` and edit its metadata.
 
+## Interactive Texloom figures
+
+Place a registered figure between document-level paragraphs:
+
+```tex
+\LemniroScene{circle-and-sine}
+```
+
+The ID is a literal lowercase hyphenated name from `content/scenes.json`.
+The catalog records `texloom-figure/1`, a local manifest path and SHA-256,
+poster path, plain-text title/description, dimensions and duration. Paths are
+relative to the site's `public/` root. The compiler verifies the manifest,
+every resource payload (including hidden resources), bounds, and the hydrated
+scene before publishing an article. Unknown IDs, changed hashes, missing
+assets and malformed data stop publication.
+
+The HTML compiler emits a reference placeholder, which becomes a static
+poster and caption plus an ordered React figure boundary. Article HTML
+remains complete without JavaScript. Each occurrence has its own controls;
+repeating an ID does not share playback state. Each figure owns its runtime
+and loaded resources; the browser can cache repeated requests for the same
+asset bytes. The current controls expose time and playback speed.
+
+Use the command outside theorem/proof environments, lists, tables and other
+containers. Nested references are rejected instead of splitting those
+structures. Keep the mathematical statement and explanation in the TeX
+document: the figure complements the prose and does not replace a proof.
+Arbitrary HTML, iframe or script embeds are not an authoring mechanism.
+
+The PDF includes a boxed caption and web-edition link. If a sibling
+`poster.pdf` accompanies the registered SVG poster, compilation copies that
+optional static illustration into the PDF. Downloaded standalone `.tex`
+still compiles without the optional illustration and retains the caption.
+The note `content/notes/circle-and-sine.tex` contains a complete theorem,
+proof and three independent occurrences.
+
 ## Supported scope
 
 The current baseline uses the `article` class and the shared preamble. Support is grounded in the included notes and the complete example above. Packages whose drawings compile through this TeX/DVI/SVG path can often be captured without recreating their drawing rules in JavaScript. The correct capture boundary still matters: visual blocks keep their internal layout, while document structure needs HTML conversion. Unusual output routines, bibliographies, external graphics dependencies, or advanced page layouts may require converter configuration and output checks. Add a representative example when extending support. A package compiling to PDF does not by itself prove that this DVI/SVG and HTML output is correct.
