@@ -12,7 +12,8 @@
     "preview": "npx --no-install serve out",
     "content": "tsx scripts/build-content.ts",
     "assets": "tsx scripts/build-math-assets.ts",
-    "verify": "tsx scripts/verify-site.ts"
+    "verify:runtime": "tsx scripts/verify-texloom-runtime.ts",
+    "verify": "npm run verify:runtime && tsx scripts/verify-site.ts"
   },
   "engines": {
     "node": ">=22"
@@ -20,7 +21,8 @@
   "dependencies": {
     "next": "16.3.8",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "texloom": "file:vendor/texloom-0.3.0-a4969ac.tgz"
   },
   "devDependencies": {
     "@types/node": "26.6.3",

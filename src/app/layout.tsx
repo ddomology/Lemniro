@@ -6,6 +6,7 @@ import './globals.css';
 import './subject-tags.css';
 import './tex-fonts.css';
 import './tex-reader.css';
+import './texloom-figures.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(`${site.url}/`),

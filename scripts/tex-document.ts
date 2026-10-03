@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import postcss from 'postcss';
 import type { Entry, OutlineItem } from '../src/lib/content-types';
 import { normalizeVisuals } from './tex-visuals';
+import { assertFigurePlaceholderStructure, normalizeTexloomFigures, type SceneCatalog } from './texloom-figures';
 
 function localAsset(reference: string, slug: string): string {
   if (!reference || /^(?:#|\/|[a-z][a-z0-9+.-]*:)/i.test(reference)) return reference;
@@ -26,7 +27,8 @@ export function scopeCss(source: string, slug: string): string {
   return tree.toString();
 }
 
-export function extractDocument(source: string, css: string, slug: string, artifactsDirectory?: string): Pick<Entry, 'title' | 'html' | 'css' | 'outline' | 'visuals'> {
+export function extractDocument(source: string, css: string, slug: string, artifactsDirectory?: string, catalog: SceneCatalog = new Map()): Pick<Entry, 'title' | 'html' | 'css' | 'outline' | 'visuals' | 'bodyBlocks'> {
+  assertFigurePlaceholderStructure(source, slug);
   const $ = cheerio.load(source);
   const visuals = artifactsDirectory ? normalizeVisuals($, artifactsDirectory, slug) : [];
   const title = $('h1.titleHead').first().text().replace(/\s+/g, ' ').trim() || $('title').text().trim();
@@ -114,6 +116,7 @@ export function extractDocument(source: string, css: string, slug: string, artif
   });
   // The site renders the title separately; its TeX graphics are not article
   // assets after the compiled maketitle block has been removed.
+  const bodyBlocks = normalizeTexloomFigures($, catalog, slug);
   const usedVisuals = new Set($('[data-tex-visual]').map((_index, element) => $(element).attr('data-tex-visual')).get());
-  return { title, html: $('body').html()!.trim(), css: scopeCss(css, slug), outline, visuals: visuals.filter(visual => usedVisuals.has(visual.id)) };
+  return { title, html: $('body').html()!.trim(), css: scopeCss(css, slug), outline, visuals: visuals.filter(visual => usedVisuals.has(visual.id)), ...(bodyBlocks ? { bodyBlocks } : {}) };
 }

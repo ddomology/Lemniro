@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import type { Entry, EntryMetadata } from '../src/lib/content-types';
 import { extractDocument } from './tex-document';
+import { authoredSceneIds, loadSceneCatalog, publicFile } from './texloom-figures';
 export { extractDocument, scopeCss } from './tex-document';
 
 export function parseMetadata(source: string, sourceName = 'LaTeX source'): EntryMetadata {
@@ -91,12 +92,25 @@ export function compileEntry(root: string, relativeSource: string): Entry {
   const expectedFolder = metadata.kind === 'note' ? 'notes' : 'journal';
   if (relativeSource.replaceAll(path.sep, '/').split('/')[1] !== expectedFolder) throw new Error(`${relativeSource}: metadata kind does not match its folder.`);
   const standalone = standaloneSource(root, relativeSource);
+  const sceneCatalog = loadSceneCatalog(root);
+  const figureIds = authoredSceneIds(standalone, sceneCatalog, relativeSource);
   const work = path.join(root, '.build', 'tex', slug);
   if (!within(path.join(root, '.build'), work)) throw new Error('Invalid build directory.');
   // Clear only this generated compiler directory; stale .aux files must not mask bad references.
   rmSync(work, { recursive: true, force: true });
   mkdirSync(work, { recursive: true });
   for (const directory of ['tex', 'content']) cpSync(path.join(root, directory), path.join(work, directory), { recursive: true });
+  for (const id of new Set(figureIds)) {
+    const reference = sceneCatalog.get(id)!;
+    const pdfRelative = reference.posterPath.replace(/\.svg$/, '.pdf');
+    if (existsSync(path.join(root, 'public', pdfRelative))) {
+      const pdf = publicFile(path.join(root, 'public'), pdfRelative);
+      if (readFileSync(pdf).subarray(0, 5).toString() !== '%PDF-') throw new Error(`${id}: optional poster PDF is invalid.`);
+      const destination = path.join(work, 'texloom-assets', id);
+      mkdirSync(destination, { recursive: true });
+      cpSync(pdf, path.join(destination, 'poster.pdf'));
+    }
+  }
   for (const directory of ['html', 'pdf']) mkdirSync(path.join(work, directory));
   const texOptions = '-no-shell-escape -interaction=nonstopmode -halt-on-error -file-line-error';
   run(process.env.MAKE4HT_BIN || 'make4ht', ['-a', 'warning', '-f', 'html5+dvisvgm_hashes', '-c', 'tex/lemniro-html.cfg', '-e', 'tex/lemniro.mk4', '-d', 'html', relativeSource.replaceAll(path.sep, '/'), 'pic-m,pic-equation,pic-align,svg', '', '', texOptions], work, 'make4ht-command.log');
@@ -106,7 +120,7 @@ export function compileEntry(root: string, relativeSource: string): Entry {
   assertResolvedLog(readFileSync(path.join(work, 'pdf', `${slug}.log`), 'utf8'), `${relativeSource} (PDF)`);
   const htmlFile = path.join(work, 'html', `${slug}.html`);
   const cssFile = path.join(work, 'html', `${slug}.css`);
-  const compiled = extractDocument(readFileSync(htmlFile, 'utf8'), readFileSync(cssFile, 'utf8'), slug, path.join(work, 'html'));
+  const compiled = extractDocument(readFileSync(htmlFile, 'utf8'), readFileSync(cssFile, 'utf8'), slug, path.join(work, 'html'), sceneCatalog);
   const destination = path.join(root, '.build', 'tex-publish', slug);
   mkdirSync(destination, { recursive: true });
   cpSync(path.join(work, 'html'), destination, { recursive: true });
