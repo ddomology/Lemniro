@@ -16,7 +16,7 @@
 .texloom-figure button:hover:not(:disabled),.texloom-figure select:hover{border-color:#758e70;background:#e7ede1}
 .texloom-figure button:disabled{opacity:.55;cursor:wait}
 .texloom-figure .texloom-play{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#294b37;color:#fff;border-color:#294b37;min-width:78px}
-.texloom-figure .texloom-play:hover{background:#3e6549;color:#fff}
+.texloom-figure button.texloom-play:hover:not(:disabled){background:#3e6549;color:#fff}
 .texloom-play>span{font-size:10px;width:10px;text-align:center}
 .texloom-seek{flex:1;min-width:70px;display:flex;align-items:center}
 .texloom-seek input{width:100%;margin:0;accent-color:#426c4c;cursor:pointer;height:30px;min-width:0}
